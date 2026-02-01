@@ -1,0 +1,60 @@
+# ===============================
+# OS / Editor files
+# ===============================
+.DS_Store
+Thumbs.db
+
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# ===============================
+# Node / Frontend 
+# ===============================
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# ===============================
+# PHP / Backend
+# ===============================
+vendor/
+composer.lock
+
+# ===============================
+# Environment & Config
+# ===============================
+.env
+.env.local
+.env.production
+
+# API keys & secrets
+
+
+# ===============================
+# Cache & Logs
+# ===============================
+
+backend/logs/
+*.log
+
+# ===============================
+# Build / Dist 
+# ===============================
+dist/
+build/
+
+# ===============================
+# Local server / XAMPP
+# ===============================
+.htaccess
+*.sqlite
+*.db
+
+# ===============================
+# Temporary files
+# ===============================
+tmp/
+temp/
