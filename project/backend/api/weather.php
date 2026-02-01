@@ -14,14 +14,12 @@ $city = $_GET['city'] ?? 'istanbul';
 $cityKey = strtolower(preg_replace('/\s+/', '-', trim($city)));
 $cacheFile = __DIR__ . "/../cache/weather-$cityKey.json";
 
-/* 1️⃣ کش */
 if ($cached = getCache($cacheFile)) {
     if (ob_get_length()) ob_clean();
     echo json_encode($cached);
     exit;
 }
 
-/* 2️⃣ تابع fetchUrl با cURL */
 function fetchUrl($url) {
     $ch = curl_init($url);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -43,7 +41,7 @@ function fetchUrl($url) {
     return $json;
 }
 
-/* 3️⃣ Current Weather */
+
 $currentUrl = "https://api.openweathermap.org/data/2.5/weather?q=" . urlencode($city) . "&units=metric&appid=$apiKey";
 $response = fetchUrl($currentUrl);
 
@@ -69,7 +67,7 @@ if (isset($response['cod']) && $response['cod'] != 200) {
 $lat = $response['coord']['lat'];
 $lon = $response['coord']['lon'];
 
-/* 4️⃣ 5-day Forecast */
+
 $forecastUrl = "https://api.openweathermap.org/data/2.5/forecast?q=" . urlencode($city) . "&units=metric&appid=$apiKey";
 $forecast = fetchUrl($forecastUrl);
 
@@ -92,7 +90,7 @@ if (isset($forecast['cod']) && $forecast['cod'] != "200") {
     exit;
 }
 
-/* 5️⃣ Hourly - اولین 12 مورد (هر 3 ساعت) */
+
 $hourly = [];
 foreach (array_slice($forecast['list'], 0, 12) as $h) {
     $hourly[] = [
@@ -102,7 +100,7 @@ foreach (array_slice($forecast['list'], 0, 12) as $h) {
     ];
 }
 
-/* 6️⃣ Daily - میانگین دمای هر روز */
+
 $dailyData = [];
 foreach ($forecast['list'] as $item) {
     $day = date('Y-m-d', $item['dt']);
@@ -122,7 +120,7 @@ foreach ($dailyData as $day => $data) {
     if (count($daily) >= 5) break; // فقط 5 روز
 }
 
-/* 7️⃣ خروجی نهایی */
+
 $data = [
     "city" => $response['name'],
     "current" => [
@@ -138,9 +136,10 @@ $data = [
     "updated_at" => time()
 ];
 
-/* 8️⃣ ذخیره کش */
+/* ذخیره کش */
 setCache($cacheFile, $data);
 
-/* 9️⃣ خروجی */
+/* خروجی */
 if (ob_get_length()) ob_clean();
+
 echo json_encode($data);
