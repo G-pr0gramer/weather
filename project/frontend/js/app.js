@@ -2,7 +2,7 @@ let currentCity = 'istanbul';
 let langData = {}; // بعداً از فایل زبان پر می‌شه
 
 function loadWeather(city = 'istanbul') {
-  fetch(`/project/backend/api/weather.php?city=${city}`)
+  fetch(`../backend/api/weather.php?city=${city}`)
     .then(res => {
       const ct = res.headers.get('content-type') || '';
       if (!ct.includes('application/json')) {
