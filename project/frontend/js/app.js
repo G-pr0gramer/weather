@@ -17,7 +17,9 @@ function loadWeather(city = 'istanbul') {
       }
       console.log(data);
        
-
+if (data.aqi) {
+   renderaqi(data.aqi);
+}
   if (Array.isArray(data.hourly)) {
     renderHourly(data.hourly);
   }
@@ -27,6 +29,24 @@ function loadWeather(city = 'istanbul') {
   }
     })
     .catch(err => console.error('Fetch error:', err));
+}
+
+function renderaqi(aqi){
+  console.log("AQI IN RENDER:", aqi);
+  const container  = document.getElementById('aqi');
+  container.innerHTML = '';
+  if(!aqi || aqi.value === undefined || aqi.value === null){
+  container.innerHTML = "boro khoneeeeee"
+  return;
+  }
+  else{
+     container.innerHTML = `
+  
+      <div class="aqi-value">${aqi.value}</div>
+      <div class="aqi-level">${aqi.level}</div>
+ 
+  `;
+  }
 }
 
 function renderHourly(hours = []) {

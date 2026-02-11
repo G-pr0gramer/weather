@@ -42,6 +42,8 @@ function fetchUrl($url) {
 }
 
 
+
+
 $currentUrl = "https://api.openweathermap.org/data/2.5/weather?q=" . urlencode($city) . "&units=metric&appid=$apiKey";
 $response = fetchUrl($currentUrl);
 
@@ -77,6 +79,8 @@ $forecastUrl = "https://api.open-meteo.com/v1/forecast?"
     . "&timezone=auto";
 $meteo = fetchUrl($forecastUrl);
 
+
+
 if (isset($forecast['error'])) {
     echo json_encode([
         "error" => true,
@@ -86,6 +90,42 @@ if (isset($forecast['error'])) {
     ]);
     exit;
 }
+
+
+$airqualityUrl = "https://air-quality-api.open-meteo.com/v1/air-quality?"
+    . "latitude=$lat"
+    . "&longitude=$lon"
+    . "&hourly=us_aqi"
+    . "&timezone=auto";
+
+$aq = fetchUrl($airqualityUrl);
+
+function getAqiLevel($aqi) {
+
+    if ($aqi <= 50) return "Good";
+    if ($aqi <= 100) return "Moderate";
+    if ($aqi <= 150) return "Unhealthy for Sensitive";
+    if ($aqi <= 200) return "Unhealthy";
+    return "Very Unhealthy";
+}
+
+$aqiValue = $aq['hourly']['us_aqi'][0] ?? null;
+
+$aqi = [
+    "value" => $aqiValue,
+    "level" => $aqiValue ? getAqiLevel($aqiValue) : null
+];
+
+if (isset($aq['error'])) {
+    echo json_encode([
+        "error" => true,
+        "message" => "Air Quality API error",
+        "httpCode" => $aq['httpCode'] ?? null,
+        "raw" => $aq
+    ]);
+    exit;
+}
+
 
 
 
@@ -118,7 +158,8 @@ $data = [
         "weather_code" => $meteo['current_weather']['weathercode'],
         "wind" => $meteo['current_weather']['windspeed'],
         "lat" => $lat,
-        "lon" => $lon
+        "lon" => $lon,
+        "aqi" => $aqi
     ],
     "hourly" => $hourly,
     "daily" => $daily,
