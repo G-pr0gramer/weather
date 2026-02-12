@@ -81,7 +81,7 @@ $meteo = fetchUrl($forecastUrl);
 
 
 
-if (isset($forecast['error'])) {
+if (isset($meteo['error'])) {
     echo json_encode([
         "error" => true,
         "message" => "Forecast API error",
@@ -108,14 +108,6 @@ function getAqiLevel($aqi) {
     if ($aqi <= 200) return "Unhealthy";
     return "Very Unhealthy";
 }
-
-$aqiValue = $aq['hourly']['us_aqi'][0] ?? null;
-
-$aqi = [
-    "value" => $aqiValue,
-    "level" => $aqiValue ? getAqiLevel($aqiValue) : null
-];
-
 if (isset($aq['error'])) {
     echo json_encode([
         "error" => true,
@@ -125,6 +117,15 @@ if (isset($aq['error'])) {
     ]);
     exit;
 }
+
+$aqiValue = $aq['hourly']['us_aqi'][0] ?? null;
+
+$aqi = [
+    "value" => $aqiValue,
+    "level" => $aqiValue ? getAqiLevel($aqiValue) : null
+];
+
+
 
 
 

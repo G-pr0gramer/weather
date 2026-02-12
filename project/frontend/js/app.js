@@ -17,9 +17,10 @@ function loadWeather(city = 'istanbul') {
       }
       console.log(data);
        
-if (data.aqi) {
-   renderaqi(data.aqi);
+if (data.current && data.current.aqi) {
+    renderaqi(data.current.aqi);
 }
+
   if (Array.isArray(data.hourly)) {
     renderHourly(data.hourly);
   }
@@ -32,11 +33,11 @@ if (data.aqi) {
 }
 
 function renderaqi(aqi){
-  console.log("AQI IN RENDER:", aqi);
+
   const container  = document.getElementById('aqi');
   container.innerHTML = '';
   if(!aqi || aqi.value === undefined || aqi.value === null){
-  container.innerHTML = "boro khoneeeeee"
+  container.innerHTML = "<div>اطلاعات کیفیت هوا موجود نیست</div>";
   return;
   }
   else{
