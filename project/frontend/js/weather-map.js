@@ -1,56 +1,74 @@
-const WEATHER_MAP = {
-  thunderstorm: {
-    codes: [200,201,202,210,211,212,221,230,231,232],
-    icon: '⛈️',
+const METEO_MAP = {
+  clear: {
+    codes: [0],
+    icon: '☀️',
     text: {
-     
-      en: 'Thunderstorm',
-      tr: 'Fırtına'
+      fa: 'صاف',
+      en: 'Clear',
+      tr: 'Açık'
+    }
+  },
+  partly_cloudy: {
+    codes: [1, 2],
+    icon: '🌤️',
+    text: {
+      fa: 'نیمه ابری',
+      en: 'Partly Cloudy',
+      tr: 'Parçalı Bulutlu'
+    }
+  },
+  cloudy: {
+    codes: [3],
+    icon: '☁️',
+    text: {
+      fa: 'ابری',
+      en: 'Cloudy',
+      tr: 'Bulutlu'
+    }
+  },
+  fog: {
+    codes: [45, 48],
+    icon: '🌫️',
+    text: {
+      fa: 'مه آلود',
+      en: 'Fog',
+      tr: 'Sisli'
     }
   },
   drizzle: {
-    codes: [300,301,302,310,311,312,313,314,321],
+    codes: [51, 53, 55],
     icon: '🌦️',
     text: {
-     
+      fa: 'نم نم باران',
       en: 'Drizzle',
-      tr: 'Çisenti'
+      tr: 'Çiseleme'
     }
   },
   rain: {
-    codes: [500,501,502,503,504,511,520,521,522,531],
+    codes: [61, 63, 65, 80, 81, 82],
     icon: '🌧️',
     text: {
-     
+      fa: 'بارانی',
       en: 'Rain',
       tr: 'Yağmur'
     }
   },
   snow: {
-    codes: [600,601,602,611,612,613,615,616,620,621,622],
+    codes: [71, 73, 75],
     icon: '❄️',
     text: {
-      
+      fa: 'برفی',
       en: 'Snow',
       tr: 'Kar'
     }
   },
-  clear: {
-    codes: [800],
-    icon: '☀️',
+  thunderstorm: {
+    codes: [95, 96, 99],
+    icon: '⛈️',
     text: {
-      
-      en: 'Clear',
-      tr: 'Açık'
-    }
-  },
-  clouds: {
-    codes: [801,802,803,804],
-    icon: '☁️',
-    text: {
-      
-      en: 'Cloudy',
-      tr: 'Bulutlu'
+      fa: 'رعد و برق',
+      en: 'Thunderstorm',
+      tr: 'Fırtına'
     }
   }
 };
