@@ -16,32 +16,32 @@ function loadWeather(city = 'istanbul') {
         return;
       }
       console.log(data);
-       
-if (data.current && data.current.aqi) {
-    renderaqi(data.current.aqi);
-}
 
-  if (Array.isArray(data.hourly)) {
-    renderHourly(data.hourly);
-  }
+      if (data.current && data.current.aqi) {
+        renderaqi(data.current.aqi);
+      }
 
-  if (Array.isArray(data.daily)) {
-    renderDaily(data.daily);
-  }
+      if (Array.isArray(data.hourly)) {
+        renderHourly(data.hourly);
+      }
+
+      if (Array.isArray(data.daily)) {
+        renderDaily(data.daily);
+      }
     })
     .catch(err => console.error('Fetch error:', err));
 }
 
-function renderaqi(aqi){
+function renderaqi(aqi) {
 
-  const container  = document.getElementById('aqi');
+  const container = document.getElementById('aqi');
   container.innerHTML = '';
-  if(!aqi || aqi.value === undefined || aqi.value === null){
-  container.innerHTML = "<div>اطلاعات کیفیت هوا موجود نیست</div>";
-  return;
+  if (!aqi || aqi.value === undefined || aqi.value === null) {
+    container.innerHTML = "<div>اطلاعات کیفیت هوا موجود نیست</div>";
+    return;
   }
-  else{
-     container.innerHTML = `
+  else {
+    container.innerHTML = `
   
       <div class="aqi-value">${aqi.value}</div>
       <div class="aqi-level">${aqi.level}</div>
@@ -58,22 +58,22 @@ function renderHourly(hours = []) {
     container.innerHTML = '<div>ساعتی موجود نیست</div>';
     return;
   }
-  else{
+  else {
     hours.forEach(hour => {
-    const info = getWeatherInfo(hour.weather_code);
+      const info = getWeatherInfo(hour.weather_code);
 
-    container.innerHTML += `
+      container.innerHTML += `
       <div class="hour">
         <div class="hour-time">${hour.time}</div>
         <div class="hour-icon">${info.icon}</div>
         <div class="hour-temp">${hour.temp}°</div>
       </div>
     `;
-  });
-}
+    });
   }
+}
 
-  
+
 function renderDaily(days = []) {
   const container = document.getElementById('daily');
   container.innerHTML = '';
