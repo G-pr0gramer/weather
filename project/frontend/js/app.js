@@ -2,7 +2,7 @@ let currentCity = 'istanbul';
 let langData = {}; // بعداً از فایل زبان پر می‌شه
 
 function loadWeather(city = 'istanbul') {
-  fetch(`/project/backend/api/weather.php?city=${city}`)
+  fetch(`../backend/api/weather.php?city=${city}`)
     .then(res => {
       const ct = res.headers.get('content-type') || '';
       if (!ct.includes('application/json')) {
@@ -17,6 +17,9 @@ function loadWeather(city = 'istanbul') {
       }
       console.log(data);
        
+if (data.current && data.current.aqi) {
+    renderaqi(data.current.aqi);
+}
 
   if (Array.isArray(data.hourly)) {
     renderHourly(data.hourly);
@@ -27,6 +30,24 @@ function loadWeather(city = 'istanbul') {
   }
     })
     .catch(err => console.error('Fetch error:', err));
+}
+
+function renderaqi(aqi){
+
+  const container  = document.getElementById('aqi');
+  container.innerHTML = '';
+  if(!aqi || aqi.value === undefined || aqi.value === null){
+  container.innerHTML = "<div>اطلاعات کیفیت هوا موجود نیست</div>";
+  return;
+  }
+  else{
+     container.innerHTML = `
+  
+      <div class="aqi-value">${aqi.value}</div>
+      <div class="aqi-level">${aqi.level}</div>
+ 
+  `;
+  }
 }
 
 function renderHourly(hours = []) {
