@@ -28,10 +28,51 @@ function loadWeather(city = 'istanbul') {
       if (Array.isArray(data.daily)) {
         renderDaily(data.daily);
       }
+
+        displayWeatherData(data);
     })
     .catch(err => console.error('Fetch error:', err));
 }
+  function displayWeatherData(data) {
 
+    if (!data || !data.current) return;
+
+    const current = data.current;
+
+    const tempElement = document.getElementById('current-temp');
+    const conditionElement = document.getElementById('current-condition');
+    const iconElement = document.getElementById('current-icon');
+    const windElement = document.querySelector('.wind');
+    const humidityElement = document.querySelector('.humidity');
+    const cityElement = document.getElementById('current-city');
+    const info = getWeatherInfo(current.weather_code, currentLang);
+
+    if (cityElement && data.location) {
+        cityElement.textContent = `${data.location.name}, ${data.location.country}`;
+    }
+    
+    if (tempElement)
+        tempElement.textContent = `${Math.round(current.temp)}°C`;
+
+    if (conditionElement)
+        conditionElement.textContent = info.text;
+
+    if (iconElement)
+        iconElement.innerHTML = `<div style="font-size:4rem;">${info.icon}</div>`;
+
+    if (windElement)
+        windElement.textContent = `Wind: ${current.wind} km/h`;
+
+    if (humidityElement)
+        humidityElement.textContent = `Humidity: ${current.humidity}%`;
+
+    // 🔊 sync sound
+    updateWeatherCode(current.weather_code);
+
+    // 🕒 Forecast
+    if (data.hourly) displayHourlyForecast(data.hourly);
+    if (data.daily) displayDailyForecast(data.daily);
+}
 function renderaqi(aqi) {
 
   const container = document.getElementById('aqi');
