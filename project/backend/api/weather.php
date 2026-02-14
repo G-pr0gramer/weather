@@ -42,6 +42,8 @@ function fetchUrl($url) {
 }
 
 
+
+
 $currentUrl = "https://api.openweathermap.org/data/2.5/weather?q=" . urlencode($city) . "&units=metric&appid=$apiKey";
 $response = fetchUrl($currentUrl);
 
@@ -68,10 +70,18 @@ $lat = $response['coord']['lat'];
 $lon = $response['coord']['lon'];
 
 
-$forecastUrl = "https://api.openweathermap.org/data/2.5/forecast?q=" . urlencode($city) . "&units=metric&appid=$apiKey";
-$forecast = fetchUrl($forecastUrl);
+$forecastUrl = "https://api.open-meteo.com/v1/forecast?"
+    . "latitude=$lat"
+    . "&longitude=$lon"
+    . "&hourly=temperature_2m,weathercode"
+    . "&daily=temperature_2m_max,temperature_2m_min,weathercode"
+    . "&current_weather=true"
+    . "&timezone=auto";
+$meteo = fetchUrl($forecastUrl);
 
-if (isset($forecast['error'])) {
+
+
+if (isset($meteo['error'])) {
     echo json_encode([
         "error" => true,
         "message" => "Forecast API error",
@@ -81,55 +91,76 @@ if (isset($forecast['error'])) {
     exit;
 }
 
-if (isset($forecast['cod']) && $forecast['cod'] != "200") {
+
+$airqualityUrl = "https://air-quality-api.open-meteo.com/v1/air-quality?"
+    . "latitude=$lat"
+    . "&longitude=$lon"
+    . "&hourly=us_aqi"
+    . "&timezone=auto";
+
+$aq = fetchUrl($airqualityUrl);
+
+function getAqiLevel($aqi) {
+
+    if ($aqi <= 50) return "Good";
+    if ($aqi <= 100) return "Moderate";
+    if ($aqi <= 150) return "Unhealthy for Sensitive";
+    if ($aqi <= 200) return "Unhealthy";
+    return "Very Unhealthy";
+}
+if (isset($aq['error'])) {
     echo json_encode([
         "error" => true,
-        "message" => $forecast['message'] ?? 'Forecast API returned error',
-        "raw" => $forecast
+        "message" => "Air Quality API error",
+        "httpCode" => $aq['httpCode'] ?? null,
+        "raw" => $aq
     ]);
     exit;
 }
 
+$aqiValue = $aq['hourly']['us_aqi'][0] ?? null;
+
+$aqi = [
+    "value" => $aqiValue,
+    "level" => $aqiValue ? getAqiLevel($aqiValue) : null
+];
+
+
+
+
+
 
 $hourly = [];
-foreach (array_slice($forecast['list'], 0, 12) as $h) {
+
+for ($i = 0; $i < 12; $i++) {
     $hourly[] = [
-        "temp" => round($h['main']['temp']),
-        "weather_code" => $h['weather'][0]['id'],
-        "time" => date('H:i', $h['dt'])
+        "time" => date('H:i', strtotime($meteo['hourly']['time'][$i])),
+        "temp" => round($meteo['hourly']['temperature_2m'][$i]),
+        "weather_code" => $meteo['hourly']['weathercode'][$i]
     ];
 }
 
-
-$dailyData = [];
-foreach ($forecast['list'] as $item) {
-    $day = date('Y-m-d', $item['dt']);
-    if (!isset($dailyData[$day])) {
-        $dailyData[$day] = ['temps' => [], 'weather_code' => $item['weather'][0]['id']];
-    }
-    $dailyData[$day]['temps'][] = $item['main']['temp'];
-}
 
 $daily = [];
-foreach ($dailyData as $day => $data) {
+
+for ($i = 0; $i < 5; $i++) {
     $daily[] = [
-        "temp" => round(array_sum($data['temps']) / count($data['temps'])),
-        "weather_code" => $data['weather_code'],
-        "name" => date('D', strtotime($day))
+        "name" => date('D', strtotime($meteo['daily']['time'][$i])),
+        "temp" => round($meteo['daily']['temperature_2m_max'][$i]),
+        "weather_code" => $meteo['daily']['weathercode'][$i]
     ];
-    if (count($daily) >= 5) break; // فقط 5 روز
 }
 
 
 $data = [
     "city" => $response['name'],
     "current" => [
-        "temp" => round($response['main']['temp']),
-        "weather_code" => $response['weather'][0]['id'],
-        "humidity" => $response['main']['humidity'],
-        "wind" => $response['wind']['speed'],
+        "temp" => round($meteo['current_weather']['temperature']),
+        "weather_code" => $meteo['current_weather']['weathercode'],
+        "wind" => $meteo['current_weather']['windspeed'],
         "lat" => $lat,
-        "lon" => $lon
+        "lon" => $lon,
+        "aqi" => $aqi
     ],
     "hourly" => $hourly,
     "daily" => $daily,
