@@ -1,17 +1,17 @@
 function getWeatherInfo(code, lang = 'en') {
-  for (const key in METEO_MAP) {
-    if (METEO_MAP[key].codes.includes(code)) {
-      return {
-        icon: METEO_MAP[key].icon,
-        text: METEO_MAP[key].text[lang] || METEO_MAP[key].text.en
-      };
+    for (const key in METEO_MAP) {
+        if (METEO_MAP[key].codes.includes(code)) {
+            return {
+                icon: METEO_MAP[key].icon,
+                text: METEO_MAP[key].text[lang] || METEO_MAP[key].text.en
+            };
+        }
     }
-  }
 
-  return {
-    icon: '❓',
-    text: lang === 'fa' ? 'نامشخص' : 'Unknown'
-  };
+    return {
+        icon: '❓',
+        text: lang === 'fa' ? 'نامشخص' : 'Unknown'
+    };
 }
 
 
@@ -20,7 +20,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const searchInput = document.querySelector('.search-bar input');
     let autocompleteContainer = null;
     let debounceTimer = null;
-    
+
 
     function createAutocompleteContainer() {
         if (!autocompleteContainer) {
@@ -103,7 +103,11 @@ document.addEventListener('DOMContentLoaded', function () {
             suggestion.onclick = () => {
                 searchInput.value = city.name;
                 clearAutocomplete();
-                loadWeather(city.name)
+                if (city.lat && city.lon) {
+                    updateMapPosition(city.lat, city.lon, city.name);
+                }
+
+                loadWeather(city.name);
             };
 
             container.appendChild(suggestion);
@@ -129,8 +133,8 @@ document.addEventListener('DOMContentLoaded', function () {
         };
         return countries[code] || code;
     }
-    
-  
+
+
     async function searchCities(query) {
         if (query.length < 2) {
             clearAutocomplete();
@@ -186,14 +190,14 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
-   
 
 
 
- 
 
 
-  
+
+
+
 
     searchInput.addEventListener('input', function (e) {
         const query = e.target.value.trim();
@@ -221,7 +225,7 @@ document.addEventListener('DOMContentLoaded', function () {
             if (city) {
                 clearAutocomplete();
                 searchCities(city);
-                
+
             }
         }
     });
@@ -233,23 +237,23 @@ let currentLang = 'en';
 
 function changeLanguage(lang) {
     currentLang = lang;
-    
+
     document.querySelectorAll('.lang-btn').forEach(btn => {
         btn.classList.remove('active');
         if (btn.dataset.lang === lang) {
             btn.classList.add('active');
         }
     });
-    
+
     if (currentCity) {
         loadWeather(currentCity);
     }
-    
+
     console.log(`Language changed to: ${lang}`);
 }
 
 document.querySelectorAll('.lang-btn').forEach(btn => {
-    btn.addEventListener('click', function() {
+    btn.addEventListener('click', function () {
         const lang = this.dataset.lang;
         changeLanguage(lang);
     });
@@ -269,9 +273,9 @@ const weatherSounds = {
 
 function toggleSound() {
     isSoundEnabled = !isSoundEnabled;
-    
+
     const soundBtn = document.getElementById('sound-toggle');
-    
+
     if (isSoundEnabled) {
         soundBtn.classList.remove('muted');
         soundBtn.innerHTML = '<span class="sound-icon">🔊</span>';
@@ -285,11 +289,11 @@ function toggleSound() {
 
 function playWeatherSound(weatherCode) {
     if (!isSoundEnabled) return;
-    
+
     stopWeatherSound();
-    
+
     let soundType = 'clear';
-    
+
     if ([500, 501, 502, 503, 504, 511, 520, 521, 522, 531].includes(weatherCode)) {
         soundType = 'rain';
     } else if ([200, 201, 202, 210, 211, 212, 221, 230, 231, 232].includes(weatherCode)) {
@@ -299,9 +303,9 @@ function playWeatherSound(weatherCode) {
     } else if ([600, 601, 602, 611, 612, 613, 615, 616, 620, 621, 622].includes(weatherCode)) {
         soundType = 'snow';
     }
-    
+
     const soundUrl = weatherSounds[soundType];
-    
+
     if (soundUrl) {
         currentWeatherSound = new Audio(soundUrl);
         currentWeatherSound.loop = true;
@@ -333,9 +337,9 @@ let isDarkMode = true;
 
 function toggleTheme() {
     isDarkMode = !isDarkMode;
-    
+
     const themeBtn = document.getElementById('theme-toggle');
-    
+
     if (isDarkMode) {
         document.body.style.backgroundColor = 'rgb(29, 29, 71)';
         document.body.style.color = '#fff';
@@ -345,7 +349,7 @@ function toggleTheme() {
         document.body.style.color = '#333';
         themeBtn.innerHTML = '<span class="theme-icon">☀️</span>';
     }
-    
+
     document.querySelectorAll('.weather-card, .day-card, .chart-container').forEach(card => {
         if (isDarkMode) {
             card.style.background = 'rgba(26, 43, 60, 0.7)';
@@ -355,7 +359,7 @@ function toggleTheme() {
             card.style.color = '#333';
         }
     });
-    
+
     const header = document.querySelector('.main-header');
     if (header) {
         if (isDarkMode) {

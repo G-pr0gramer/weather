@@ -29,49 +29,59 @@ function loadWeather(city = 'istanbul') {
         renderDaily(data.daily);
       }
 
-        displayWeatherData(data);
+      displayWeatherData(data);
+
+      if (data.location && data.location.lat && data.location.lon) {
+        if (typeof updateMapPosition === 'function') {
+          updateMapPosition(
+            data.location.lat,
+            data.location.lon,
+            data.location.name
+          );
+        }
+      }
     })
     .catch(err => console.error('Fetch error:', err));
 }
-  function displayWeatherData(data) {
+function displayWeatherData(data) {
 
-    if (!data || !data.current) return;
+  if (!data || !data.current) return;
 
-    const current = data.current;
+  const current = data.current;
 
-    const tempElement = document.getElementById('current-temp');
-    const conditionElement = document.getElementById('current-condition');
-    const iconElement = document.getElementById('current-icon');
-    const windElement = document.querySelector('.wind');
-    const humidityElement = document.querySelector('.humidity');
-    const cityElement = document.getElementById('current-city');
-    const info = getWeatherInfo(current.weather_code, currentLang);
+  const tempElement = document.getElementById('current-temp');
+  const conditionElement = document.getElementById('current-condition');
+  const iconElement = document.getElementById('current-icon');
+  const windElement = document.querySelector('.wind');
+  const humidityElement = document.querySelector('.humidity');
+  const cityElement = document.getElementById('current-city');
+  const info = getWeatherInfo(current.weather_code, currentLang);
 
-    if (cityElement && data.location) {
-        cityElement.textContent = `${data.location.name}, ${data.location.country}`;
-    }
-    
-    if (tempElement)
-        tempElement.textContent = `${Math.round(current.temp)}°C`;
+  if (cityElement && data.location) {
+    cityElement.textContent = `${data.location.name}, ${data.location.country}`;
+  }
 
-    if (conditionElement)
-        conditionElement.textContent = info.text;
+  if (tempElement)
+    tempElement.textContent = `${Math.round(current.temp)}°C`;
 
-    if (iconElement)
-        iconElement.innerHTML = `<div style="font-size:4rem;">${info.icon}</div>`;
+  if (conditionElement)
+    conditionElement.textContent = info.text;
 
-    if (windElement)
-        windElement.textContent = `Wind: ${current.wind} km/h`;
+  if (iconElement)
+    iconElement.innerHTML = `<div style="font-size:4rem;">${info.icon}</div>`;
 
-    if (humidityElement)
-        humidityElement.textContent = `Humidity: ${current.humidity}%`;
+  if (windElement)
+    windElement.textContent = `Wind: ${current.wind} km/h`;
 
-    // 🔊 sync sound
-    updateWeatherCode(current.weather_code);
+  if (humidityElement)
+    humidityElement.textContent = `Humidity: ${current.humidity}%`;
 
-    // 🕒 Forecast
-    if (data.hourly) displayHourlyForecast(data.hourly);
-    if (data.daily) displayDailyForecast(data.daily);
+  // 🔊 sync sound
+  updateWeatherCode(current.weather_code);
+
+  // 🕒 Forecast
+  if (data.hourly) displayHourlyForecast(data.hourly);
+  if (data.daily) displayDailyForecast(data.daily);
 }
 function renderaqi(aqi) {
 
