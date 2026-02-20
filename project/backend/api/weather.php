@@ -1,4 +1,5 @@
 <?php
+
 ini_set('display_errors', 0);
 ini_set('log_errors', 1);
 error_reporting(E_ALL);
@@ -10,9 +11,21 @@ require_once __DIR__ . '/../config/config.php';
 require_once __DIR__ . '/../utils/cache.php';
 
 $apiKey = defined('WEATHER_API_KEY') ? WEATHER_API_KEY : '';
-$city = $_GET['city'] ?? 'istanbul';
-$cityKey = strtolower(preg_replace('/\s+/', '-', trim($city)));
-$cacheFile = __DIR__ . "/../cache/weather-$cityKey.json";
+$lat = $_GET['lat'] ?? null;
+$lon = $_GET['lon'] ?? null;
+$city = $_GET['city'] ?? null;
+
+if ($lat && $lon) {
+    $cacheKey = "weather-" . str_replace('.', '-', $lat) . "-" . str_replace('.', '-', $lon);
+} elseif ($city) {
+    $cityKey = strtolower(preg_replace('/\s+/', '-', trim($city)));
+    $cacheKey = "weather-$cityKey";
+} else {
+    echo json_encode(["error" => true, "message" => "City or coordinates required"]);
+    exit;
+}
+
+$cacheFile = __DIR__ . "/../cache/$cacheKey.json";
 
 if ($cached = getCache($cacheFile)) {
     if (ob_get_length()) ob_clean();
@@ -44,8 +57,35 @@ function fetchUrl($url) {
 
 
 
-$currentUrl = "https://api.openweathermap.org/data/2.5/weather?q=" . urlencode($city) . "&units=metric&appid=$apiKey";
-$response = fetchUrl($currentUrl);
+if ($lat && $lon) {
+
+    
+    $geoUrl = "https://api.openweathermap.org/geo/1.0/reverse?lat=$lat&lon=$lon&limit=1&appid=$apiKey";
+    $geoResponse = fetchUrl($geoUrl);
+
+    $cityName = 'Unknown Location';
+
+    if (isset($geoResponse[0]['name'])) {
+        $cityName = $geoResponse[0]['name'];
+    }
+
+} else {
+
+    $currentUrl = "https://api.openweathermap.org/data/2.5/weather?q=" . urlencode($city) . "&units=metric&appid=$apiKey";
+    $response = fetchUrl($currentUrl);
+
+    if (isset($response['error']) || (isset($response['cod']) && $response['cod'] != 200)) {
+        echo json_encode([
+            "error" => true,
+            "message" => $response['message'] ?? "Current Weather API error"
+        ]);
+        exit;
+    }
+
+    $lat = $response['coord']['lat'];
+    $lon = $response['coord']['lon'];
+    $cityName = $response['name'];
+}
 
 if (isset($response['error'])) {
     echo json_encode([
@@ -66,8 +106,6 @@ if (isset($response['cod']) && $response['cod'] != 200) {
     exit;
 }
 
-$lat = $response['coord']['lat'];
-$lon = $response['coord']['lon'];
 
 
 $forecastUrl = "https://api.open-meteo.com/v1/forecast?"
@@ -77,6 +115,14 @@ $forecastUrl = "https://api.open-meteo.com/v1/forecast?"
     . "&daily=temperature_2m_max,temperature_2m_min,weathercode"
     . "&current_weather=true"
     . "&timezone=auto";
+    if (!$lat || !$lon) {
+    echo json_encode([
+        "debug" => true,
+        "lat" => $lat,
+        "lon" => $lon
+    ]);
+    exit;
+}
 $meteo = fetchUrl($forecastUrl);
 
 
@@ -153,11 +199,13 @@ for ($i = 0; $i < 5; $i++) {
 
 
 $data = [
-    "city" => $response['name'],
+   "city" => $cityName,
+    "location" => ["name" => $cityName, "country" => $countryCode],
     "current" => [
         "temp" => round($meteo['current_weather']['temperature']),
         "weather_code" => $meteo['current_weather']['weathercode'],
         "wind" => $meteo['current_weather']['windspeed'],
+        "humidity" => 50,
         "lat" => $lat,
         "lon" => $lon,
         "aqi" => $aqi

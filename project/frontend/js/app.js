@@ -34,6 +34,15 @@ function loadWeather(city = "istanbul") {
       }
 
       displayWeatherData(data);
+      if (data.location && data.location.lat && data.location.lon) {
+        if (typeof updateMapPosition === 'function') {
+          updateMapPosition(
+            data.location.lat,
+            data.location.lon,
+            data.location.name
+          );
+        }
+      }
     })
     .catch((err) => console.error("Fetch error:", err));
 }
@@ -75,8 +84,8 @@ function displayWeatherData(data) {
 
   const info = getWeatherInfo(current.weather_code, currentLang);
 
-  if (cityElement && data.city) {
-    cityElement.textContent = data.city;
+if (cityElement && data.location) {
+    cityElement.textContent = `${data.location.name}, ${data.location.country}`;
   }
 
   if (tempElement) tempElement.textContent = `${Math.round(current.temp)}°C`;
@@ -237,6 +246,10 @@ document.addEventListener("DOMContentLoaded", function () {
       suggestion.onclick = () => {
         searchInput.value = city.name;
         clearAutocomplete();
+          if (city.lat && city.lon) {
+                    updateMapPosition(city.lat, city.lon, city.name);
+                }
+
         loadWeather(city.name);
       };
 

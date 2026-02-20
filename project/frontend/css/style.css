@@ -1,4 +1,6 @@
-*{box-sizing: border-box;}
+* {
+    box-sizing: border-box;
+}
 
 body {
     background-color: rgb(29, 29, 71);
@@ -59,11 +61,11 @@ body {
 
 .lang-selector {
     display: flex;
-    gap: 4px; 
+    gap: 4px;
     background: rgba(45, 68, 91, 0.5);
     border-radius: 12px;
     padding: 3px;
-    height: 32px; 
+    height: 32px;
 }
 
 .lang-btn {
@@ -72,7 +74,7 @@ body {
     color: #fff;
     font-size: 0.8rem;
     cursor: pointer;
-    padding: 4px 8px; 
+    padding: 4px 8px;
     border-radius: 8px;
     transition: all 0.2s;
     min-width: 36px;
@@ -91,7 +93,8 @@ body {
 }
 
 /* استایل دکمه‌های صدا و دارک مود */
-.sound-btn, .theme-btn {
+.sound-btn,
+.theme-btn {
     background: none;
     border: none;
     color: #fff;
@@ -105,7 +108,8 @@ body {
     transition: all 0.2s;
 }
 
-.sound-btn:hover, .theme-btn:hover {
+.sound-btn:hover,
+.theme-btn:hover {
     background: rgba(255, 255, 255, 0.15);
 }
 
@@ -357,6 +361,106 @@ body {
     width: 15px;
     height: 15px;
     border-radius: 3px;
+}
+
+.map-section {
+    background: rgba(26, 43, 60, 0.7);
+    border-radius: 20px;
+    padding: 25px;
+    margin: 20px auto;
+    max-width: 800px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.map-header-inline {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.map-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.map-icon {
+    font-size: 1.5rem;
+}
+
+.map-title h3 {
+    color: #fff;
+    font-size: 1.2rem;
+    margin: 0;
+    font-weight: 600;
+}
+
+.map-hint {
+    color: #aaa;
+    font-size: 0.85rem;
+    background: rgba(45, 68, 91, 0.5);
+    padding: 6px 12px;
+    border-radius: 20px;
+}
+
+#weather-map {
+    height: 400px;
+    width: 100%;
+    border-radius: 15px;
+    background: rgba(15, 23, 42, 0.5);
+    border: 2px solid rgba(74, 144, 226, 0.3);
+    position: relative;
+    overflow: hidden;
+}
+
+#weather-map::before {
+    content: 'Loading map...';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: #aaa;
+    font-size: 0.9rem;
+    z-index: 0;
+}
+
+@media (max-width: 768px) {
+    .map-section {
+        margin: 15px;
+        padding: 15px;
+    }
+
+    #weather-map {
+        height: 300px;
+    }
+
+    .map-header-inline {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .map-title h3 {
+        font-size: 1.1rem;
+    }
+
+    .map-hint {
+        font-size: 0.8rem;
+    }
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+    .map-section {
+        max-width: 700px;
+    }
+
+    #weather-map {
+        height: 350px;
+    }
 }
 
 @media (max-width: 768px) {
