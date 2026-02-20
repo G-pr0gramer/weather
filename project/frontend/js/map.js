@@ -89,8 +89,9 @@ function handleMapClick(lat, lon) {
 };
 
 async function fetchWeatherByCoords(lat, lng) {
+   
     try {
-        const response = await fetch(`../backend/api/weather-by-coords.php?lat=${lat}&lon=${lng}`);
+        const response = await fetch(`../backend/api/weather.php?lat=${lat}&lon=${lng}`);
         const data = await response.json();
 
         if (data.error) {
@@ -116,7 +117,7 @@ async function fetchWeatherByCoords(lat, lng) {
         }
 
         if (currentMarker) {
-            const cityName = data.location.name || 'Unknown';
+            const cityName = data.city|| 'Unknown';
             currentMarker.setPopupContent(`📍 ${cityName}`);
         }
 
