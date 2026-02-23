@@ -84,7 +84,7 @@ function displayWeatherData(data) {
 
   const info = getWeatherInfo(current.weather_code, currentLang);
 
-if (cityElement && data.location) {
+  if (cityElement && data.location) {
     cityElement.textContent = `${data.location.name}, ${data.location.country}`;
   }
 
@@ -246,9 +246,9 @@ document.addEventListener("DOMContentLoaded", function () {
       suggestion.onclick = () => {
         searchInput.value = city.name;
         clearAutocomplete();
-          if (city.lat && city.lon) {
-                    updateMapPosition(city.lat, city.lon, city.name);
-                }
+        if (city.lat && city.lon) {
+          updateMapPosition(city.lat, city.lon, city.name);
+        }
 
         loadWeather(city.name);
       };
@@ -509,3 +509,226 @@ loadWeather();
 setInterval(() => {
   loadWeather();
 }, 600000);
+
+let aqiChartInstance = null;
+let aqiPanelOpen = false;
+
+function toggleAQIPanel() {
+  const panel = document.querySelector('.aqi-panel');
+  aqiPanelOpen = !aqiPanelOpen;
+
+  if (aqiPanelOpen) {
+    panel.classList.add('open');
+  } else {
+    panel.classList.remove('open');
+  }
+}
+
+async function loadAQIChart() {
+  const input = document.getElementById('aqiCityInput').value;
+  const loading = document.getElementById('aqiLoading');
+  const summaryCards = document.getElementById('aqiSummaryCards');
+  const chartContainer = document.getElementById('aqiChartContainer');
+  const detailsTable = document.getElementById('aqiDetailsTable');
+
+  if (!input.trim()) {
+    alert('Please enter the name of at least one city');
+    return;
+  }
+
+  const cities = input.split(/[,،و]+/).map(c => c.trim()).filter(c => c);
+  console.log('شهرهای وارد شده:', cities);
+
+  if (cities.length === 0) {
+    alert('Please enter at least one city');
+    return;
+  }
+
+  // نمایش لودینگ
+  loading.style.display = 'flex';
+  summaryCards.style.display = 'none';
+  chartContainer.style.display = 'none';
+  detailsTable.style.display = 'none';
+
+  const allData = [];
+  const errors = [];
+
+  try {
+    for (const city of cities) {
+      try {
+        console.log(`در حال دریافت اطلاعات برای: ${city}`);
+        const data = await fetchFromBackend(city);
+
+        if (data && data.current && data.current.aqi) {
+          allData.push(data);
+          console.log(`✅ داده‌های ${city} دریافت شد:`, data.current.aqi);
+        } else {
+          errors.push(`${city}: داده‌های AQI موجود نیست`);
+          console.warn(`⚠️ داده‌های ناقص برای ${city}:`, data);
+        }
+      } catch (cityError) {
+        console.error(`❌ خطا در دریافت ${city}:`, cityError);
+        errors.push(`${city}: ${cityError.message}`);
+      }
+    }
+
+    if (allData.length === 0) {
+      throw new Error('هیچ داده‌ای دریافت نشد.\nخطاها: ' + errors.join(', '));
+    }
+
+    console.log('✅ همه داده‌ها:', allData);
+
+    loading.style.display = 'none';
+
+    renderAQISummaryCards(allData);
+    summaryCards.style.display = 'grid';
+
+    renderAQIChart(allData);
+    chartContainer.style.display = 'block';
+
+    renderAQITable(allData);
+    detailsTable.style.display = 'block';
+
+    if (errors.length > 0) {
+      console.warn('⚠️ برخی شهرها خطا دادن:', errors);
+    }
+
+  } catch (error) {
+    loading.style.display = 'none';
+    console.error('خطای کلی:', error);
+    alert('خطا در دریافت اطلاعات:\n' + error.message);
+  }
+}
+
+function renderAQISummaryCards(citiesData) {
+  const container = document.getElementById('aqiSummaryCards');
+  container.innerHTML = '';
+
+  citiesData.forEach(city => {
+    const aqiValue = city.current.aqi.value;
+    const aqiLevel = city.current.aqi.level;
+
+    let statusClass = aqiValue <= 50 ? 'good' :
+      aqiValue <= 100 ? 'moderate' : 'unhealthy';
+
+    const card = `
+            <div class="summary-card ${statusClass}">
+                <div class="summary-city">${city.city}</div>
+                <div class="summary-value">${aqiValue}</div>
+                <div class="summary-level">${aqiLevel}</div>
+            </div>
+        `;
+    container.innerHTML += card;
+  });
+}
+
+function renderAQIChart(citiesData) {
+  const ctx = document.getElementById('aqiChart').getContext('2d');
+
+  if (aqiChartInstance) {
+    aqiChartInstance.destroy();
+  }
+
+  const labels = citiesData.map(d => d.city);
+  const values = citiesData.map(d => d.current.aqi.value);
+
+  const bgColors = values.map(val => {
+    if (val <= 50) return 'rgba(76, 175, 80, 0.8)';
+    if (val <= 100) return 'rgba(255, 152, 0, 0.8)';
+    return 'rgba(244, 67, 54, 0.8)';
+  });
+
+  aqiChartInstance = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: labels,
+      datasets: [{
+        label: 'Air pollution index: (AQI)',
+        data: values,
+        backgroundColor: bgColors,
+        borderColor: bgColors.map(c => c.replace('0.8', '1')),
+        borderWidth: 2,
+        borderRadius: 8,
+        barThickness: 60,
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        title: {
+          display: true,
+          text: 'Air Quality Index Comparison',
+          color: 'rgba(255, 255, 255, 0.9)',
+          font: { size: 16, weight: 'bold' }
+        },
+        tooltip: {
+          backgroundColor: 'rgba(0, 0, 0, 0.8)',
+          titleColor: '#fff',
+          bodyColor: '#fff',
+          borderColor: 'rgba(255, 255, 255, 0.1)',
+          borderWidth: 1,
+          padding: 12,
+          displayColors: true,
+        }
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          max: 200,
+          grid: { color: 'rgba(255, 255, 255, 0.05)' },
+          ticks: { color: 'rgba(255, 255, 255, 0.6)' },
+          title: {
+            display: true,
+            text: 'AQI',
+            color: 'rgba(255, 255, 255, 0.7)'
+          }
+        },
+        x: {
+          grid: { display: false },
+          ticks: { color: 'rgba(255, 255, 255, 0.6)' }
+        }
+      },
+      animation: {
+        duration: 1000,
+        easing: 'easeOutQuart'
+      }
+    }
+  });
+}
+
+function renderAQITable(citiesData) {
+  const tbody = document.getElementById('aqiTableBody');
+  tbody.innerHTML = '';
+
+  const recommendations = {
+    good: 'Outdoor activities are free',
+    moderate: 'The sensitive should be careful',
+    unhealthy: 'Reduction in outdoor activity'
+  };
+
+  citiesData.forEach(city => {
+    const aqiValue = city.current.aqi.value;
+    const aqiLevel = city.current.aqi.level.toLowerCase();
+
+    let statusClass = aqiValue <= 50 ? 'good' :
+      aqiValue <= 100 ? 'moderate' : 'unhealthy';
+
+    const row = `
+            <tr>
+                <td><strong>${city.city}</strong></td>
+                <td>${aqiValue}</td>
+                <td><span class="aqi-badge ${statusClass}">${aqiLevel}</span></td>
+                <td>${recommendations[statusClass]}</td>
+            </tr>
+        `;
+    tbody.innerHTML += row;
+  });
+}
+
+async function fetchFromBackend(cityName) {
+  const response = await fetch(`../backend/api/weather.php?city=${cityName}`);
+  if (!response.ok) throw new Error(`شهر ${cityName} پیدا نشد`);
+  return await response.json();
+}
