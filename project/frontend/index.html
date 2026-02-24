@@ -1,6 +1,7 @@
 <!doctype html>
 <html lang="en">
-  <head>
+
+<head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
@@ -11,65 +12,62 @@
     <link rel="stylesheet" href="css/style.css" />
     <link href="./src/output.css" rel="stylesheet" />
 
-    <link
-      rel="stylesheet"
-      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-    />
-  </head>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+</head>
 
-  <bod>
+<bod>
     <header class="main-header">
-      <div class="logo text-blue-700">AuraWeather</div>
+        <div class="logo text-blue-700">AuraWeather</div>
 
-      <div class="search-bar">
-        <input type="text" placeholder="Search City...🔍" id="search-input" />
-      </div>
-
-      <div class="header-icons">
-        <div class="lang-selector">
-          <button class="lang-btn active" data-lang="tr">Tr</button>
-          <button class="lang-btn" data-lang="fa">Ir</button>
-          <button class="lang-btn" data-lang="en">En</button>
+        <div class="search-bar">
+            <input type="text" placeholder="Search City...🔍" id="search-input" />
         </div>
 
-        <button class="sound-btn" id="sound-toggle">
+        <div class="header-icons">
+            <div class="lang-selector">
+                <button class="lang-btn active" data-lang="tr">Tr</button>
+                <button class="lang-btn" data-lang="fa">Ir</button>
+                <button class="lang-btn" data-lang="en">En</button>
+            </div>
+
+            <button class="sound-btn" id="sound-toggle">
           <span class="sound-icon">🔊</span>
         </button>
 
-        <button class="theme-btn" id="theme-toggle">
+            <button class="theme-btn" id="theme-toggle">
           <span class="theme-icon">🌙</span>
         </button>
-      </div>
+        </div>
     </header>
 
     <div class="weather-card">
-      <div class="card-header">
-        <span class="date">Monday, Jan 26</span>
-        <div id="current-city" class="city-name"></div>
-      </div>
-
-      <div class="weather-content">
-        <div class="temp-section">
-          <div class="temperature" id="current-temp"></div>
-          <div class="condition" id="current-condition"></div>
+        <div class="card-header">
+            <span class="date">Monday, Jan 26</span>
+            <div id="current-city" class="city-name"></div>
         </div>
 
-        <div class="weather-icon" id="current-icon"></div>
+        <div class="weather-content">
+            <div class="temp-section">
+                <div class="temperature" id="current-temp"></div>
+                <div class="condition" id="current-condition"></div>
+            </div>
 
-        <div class="details-section">
-          <div class="wind">Wind: 13 km/h</div>
-          <div id="aqi" class="aqi"></div>
+            <div class="weather-icon" id="current-icon"></div>
+
+            <div class="details-section">
+                <div class="wind">Wind: 13 km/h</div>
+                <div id="aqi" class="aqi"></div>
+            </div>
         </div>
-      </div>
-      <br />
-      <br />
-      <br />
-      <br />
-      <div class="hourly-forecast" id="hourly"></div>
+        <br />
+        <br />
+        <br />
+        <br />
+        <div class="hourly-forecast" id="hourly"></div>
 
-      <div class="daily-forecast" id="daily"></div>
+        <div class="daily-forecast" id="daily"></div>
 
-      <!-- <div class="chart-container">
+        <!-- <div class="chart-container">
             <div class="chart-title">City Comparison - Air Quality & Weather</div>
             <div class="chart">
                 <div class="bar-group">
@@ -128,19 +126,22 @@
     </div>
 
     <div class="map-section">
-      <div class="map-header-inline">
-        <div class="map-title">
-          <span class="map-icon">🗺️</span>
-          <h3>select the city</h3>
+        <div class="map-header-inline">
+            <div class="map-title">
+                <span class="map-icon">🗺️</span>
+                <h3>select the city</h3>
+            </div>
+            <span class="map-hint">Click on the map to view the weather.</span>
         </div>
-        <span class="map-hint">Click on the map to view the weather.</span>
-      </div>
-      <div id="weather-map"></div>
+        <div id="weather-map"></div>
     </div>
 
+
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script src="js/weather-utils.js"></script>
+    <script src="js/weather
+    -utils.js"></script>
     <script src="js/map.js"></script>
     <script src="js/app.js"></script>
-  </bod>
+</bod>
+
 </html>
