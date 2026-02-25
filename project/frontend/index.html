@@ -17,27 +17,58 @@
 
 <body>
   <header class="main-header">
-    <div class="logo text-blue-700">AuraWeather</div>
+    <div class="top-bar-content">
+      <div class="logo text-blue-700">AuraWeather</div>
 
-    <div class="search-bar">
-      <input type="text" placeholder="Search City...🔍" id="search-input" />
-    </div>
-
-    <div class="header-icons">
-      <div class="lang-selector">
-        <button class="lang-btn active" data-lang="tr">Tr</button>
-        <button class="lang-btn" data-lang="fa">Ir</button>
-        <button class="lang-btn" data-lang="en">En</button>
+      <div class="search-bar">
+        <input type="text" placeholder="Search City...🔍" class="search-input" />
       </div>
 
-      <button class="sound-btn" id="sound-toggle">
-        <span class="sound-icon">🔊</span>
-      </button>
+      <div class="header-icons">
+        <div class="lang-selector">
+          <button class="lang-btn active" data-lang="tr">Tr</button>
+          <button class="lang-btn" data-lang="fa">Ir</button>
+          <button class="lang-btn" data-lang="en">En</button>
+        </div>
 
-      <button class="theme-btn" id="theme-toggle">
+        <button class="sound-btn sound-toggle" id="sound-toggle">
+          <span class="sound-icon">🔊</span>
+        </button>
+
+        <button class="theme-btn theme-toggle" id="theme-toggle">
+          <span class="theme-icon">🌙</span>
+        </button>
+      </div>
+    </div>
+
+    <nav class="navbar">
+      <div class="logo-m">AuraWeather</div>
+
+      <button class="theme-btn theme-toggle">
         <span class="theme-icon">🌙</span>
       </button>
-    </div>
+
+      <ul class="nav-link">
+        <div class="search-bar">
+          <input type="text" placeholder="Search City...🔍" class="search-input" />
+        </div>
+        <div class="lang-selector">
+          <button class="lang-btn active" data-lang="tr">Tr</button>
+          <button class="lang-btn" data-lang="fa">Ir</button>
+          <button class="lang-btn" data-lang="en">En</button>
+        </div>
+        <li><a href="#">خانه</a></li>
+        <li><a href="#">محصولات</a></li>
+        <li><a href="#">درباره ما</a></li>
+        <li><a href="#">تماس</a></li>
+      </ul>
+
+      <div class="hamburger" id="hamburger" onclick="openMenu()">
+        <span class="bar"></span>
+        <span class="bar"></span>
+        <span class="bar"></span>
+      </div>
+    </nav>
   </header>
 
   <div class="weather-card">
@@ -85,7 +116,8 @@
     <div class="aqi-panel-content" id="aqiPanelContent">
       <div class="panel-body">
         <div class="cities-input-section">
-          <input type="text" id="aqiCityInput" placeholder="Enter the names of the cities (For example: Kocaeli, Istanbul, Ankara)"
+          <input type="text" id="aqiCityInput"
+            placeholder="Enter the names of the cities (For example: Kocaeli, Istanbul, Ankara)"
             onkeypress="if(event.key === 'Enter') loadAQIChart()">
           <button class="btn-load-chart" onclick="loadAQIChart()">
             📊 Load chart
@@ -132,6 +164,10 @@
     </div>
     <div id="weather-map"></div>
   </div>
+
+  <button class="sound-btn sound-toggle" id="sound-toggle">
+    <span class="sound-icon">🔊</span>
+  </button>
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>

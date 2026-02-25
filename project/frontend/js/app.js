@@ -381,15 +381,21 @@ const weatherSounds = {
 function toggleSound() {
   isSoundEnabled = !isSoundEnabled;
 
-  const soundBtn = document.getElementById("sound-toggle");
+  const soundBtns = document.querySelectorAll(".sound-toggle");
+  
+  soundBtns.forEach(btn => {
+    if (isSoundEnabled) {
+      btn.classList.remove("muted");
+      btn.innerHTML = '<span class="sound-icon">🔊</span>';
+    } else {
+      btn.classList.add("muted");
+      btn.innerHTML = '<span class="sound-icon">🔇</span>';
+    }
+  });
 
   if (isSoundEnabled) {
-    soundBtn.classList.remove("muted");
-    soundBtn.innerHTML = '<span class="sound-icon">🔊</span>';
     playWeatherSound(currentWeatherCode);
   } else {
-    soundBtn.classList.add("muted");
-    soundBtn.innerHTML = '<span class="sound-icon">🔇</span>';
     stopWeatherSound();
   }
 }
@@ -453,53 +459,49 @@ let isDarkMode = true;
 function toggleTheme() {
   isDarkMode = !isDarkMode;
 
-  const themeBtn = document.getElementById("theme-toggle");
+  // ✅ انتخاب همه دکمه‌های تم با کلاس
+  const themeBtns = document.querySelectorAll(".theme-toggle");
 
-  if (isDarkMode) {
-    document.body.style.backgroundColor = "rgb(29, 29, 71)";
-    document.body.style.color = "#fff";
-    themeBtn.innerHTML = '<span class="theme-icon">🌙</span>';
-  } else {
-    document.body.style.backgroundColor = "#f5f5f5";
-    document.body.style.color = "#333";
-    themeBtn.innerHTML = '<span class="theme-icon">☀️</span>';
-  }
+  // ✅ حلقه برای آپدیت همه دکمه‌ها
+  themeBtns.forEach(btn => {
+    if (isDarkMode) {
+      btn.innerHTML = '<span class="theme-icon">🌙</span>';
+    } else {
+      btn.innerHTML = '<span class="theme-icon">☀️</span>';
+    }
+  });
 
-  document
-    .querySelectorAll(".weather-card, .day-card, .chart-container")
-    .forEach((card) => {
-      if (isDarkMode) {
-        card.style.background = "rgba(26, 43, 60, 0.7)";
-        card.style.color = "#fff";
-      } else {
-        card.style.background = "rgba(255, 255, 255, 0.9)";
-        card.style.color = "#333";
-      }
-    });
+  // تغییر استایل بادی
+  document.body.style.backgroundColor = isDarkMode ? "rgb(29, 29, 71)" : "#f5f5f5";
+  document.body.style.color = isDarkMode ? "#fff" : "#333";
 
+  // تغییر استایل کارت‌ها
+  document.querySelectorAll(".weather-card, .day-card, .chart-container").forEach((card) => {
+    card.style.background = isDarkMode ? "rgba(26, 43, 60, 0.7)" : "rgba(255, 255, 255, 0.9)";
+    card.style.color = isDarkMode ? "#fff" : "#333";
+  });
+
+  // تغییر استایل هدر
   const header = document.querySelector(".main-header");
   if (header) {
-    if (isDarkMode) {
-      header.style.background = "#1a2b3c";
-      header.style.color = "#fff";
-    } else {
-      header.style.background = "#fff";
-      header.style.color = "#333";
-      header.style.boxShadow = "0 2px 10px rgba(0, 0, 0, 0.1)";
-    }
+    header.style.background = isDarkMode ? "#1a2b3c" : "#fff";
+    header.style.color = isDarkMode ? "#fff" : "#333";
+    header.style.boxShadow = isDarkMode ? "none" : "0 2px 10px rgba(0, 0, 0, 0.1)";
   }
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-  const soundBtn = document.getElementById("sound-toggle");
-  if (soundBtn) {
-    soundBtn.addEventListener("click", toggleSound);
-  }
 
-  const themeBtn = document.getElementById("theme-toggle");
-  if (themeBtn) {
-    themeBtn.addEventListener("click", toggleTheme);
-  }
+  const themeBtns = document.querySelectorAll(".theme-toggle");
+  themeBtns.forEach(btn => {
+    btn.addEventListener("click", toggleTheme);
+  });
+
+  const soundBtns = document.querySelectorAll(".sound-toggle");
+  soundBtns.forEach(btn => {
+    btn.addEventListener("click", toggleSound);
+  });
+
 });
 console.log("Header features initialized");
 // بار اول
@@ -731,4 +733,23 @@ async function fetchFromBackend(cityName) {
   const response = await fetch(`../backend/api/weather.php?city=${cityName}`);
   if (!response.ok) throw new Error(`شهر ${cityName} پیدا نشد`);
   return await response.json();
+}
+
+const hamburger = document.getElementById('hamburger');
+const navLink = document.querySelector('.nav-link');
+
+function openMenu() {
+  hamburger.classList.toggle("active");
+  navLink.classList.toggle("active");
+  document.body.classList.toggle("menu-open");
+}
+
+function closeMenu() {
+  hamburger.classList.remove("active");
+  navLink.classList.remove("active");
+}
+
+var links = document.querySelectorAll('.nav-link a');
+for (var i = 0; i < links.length; i++) {
+  links[i].onclick = closeMenu;
 }

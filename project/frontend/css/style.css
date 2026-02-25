@@ -10,8 +10,8 @@ body {
 }
 
 .main-header {
-    display: flex;
-    justify-content: space-between;
+    /* display: flex;
+    justify-content: space-between; */
     align-items: center;
     padding: 20px 25px;
     background: #1a2b3c;
@@ -24,6 +24,11 @@ body {
     z-index: 1000;
     flex-wrap: wrap;
     gap: 8px;
+}
+
+.top-bar-content{
+    display: flex;
+    justify-content: space-between;
 }
 
 .logo {
@@ -61,35 +66,33 @@ body {
 
 .lang-selector {
     display: flex;
-    gap: 4px;
-    background: rgba(45, 68, 91, 0.5);
+    background: rgba(255, 255, 255, 0.1);
     border-radius: 12px;
-    padding: 3px;
-    height: 32px;
+    padding: 4px;
+    gap: 0;
+    width: fit-content;
 }
 
 .lang-btn {
-    background: none;
+    background: transparent;
     border: none;
-    color: #fff;
-    font-size: 0.8rem;
-    cursor: pointer;
-    padding: 4px 8px;
+    color: rgba(255, 255, 255, 0.7);
+    padding: 8px 16px;
     border-radius: 8px;
-    transition: all 0.2s;
-    min-width: 36px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.lang-btn:hover {
-    background: rgba(255, 255, 255, 0.15);
+    cursor: pointer;
+    transition: all 0.3s;
+    font-weight: 500;
 }
 
 .lang-btn.active {
-    background: rgba(0, 123, 255, 0.8);
-    font-weight: bold;
+    background: #3b82f6;
+    color: white;
+    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.4);
+}
+
+.lang-btn:hover:not(.active) {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
 }
 
 /* استایل دکمه‌های صدا و دارک مود */
@@ -854,5 +857,160 @@ body {
 
     .city-label {
         font-size: 0.8rem;
+    }
+}
+
+body.menu-open {
+    overflow: hidden;
+}
+
+.navbar {
+    /* display: flex;
+    justify-content: space-between; */
+    display: none;
+    align-items: center;
+    background: #1a2b3c;
+    padding: 1rem 2rem;
+    color: white;
+    position: fixed;
+    top: 0px;
+    right: 0px;
+    left: 0px;
+}
+
+.logo-m {
+    font-size: 1.5rem;
+    font-weight: bold;
+    order: 3;
+}
+
+.nav-link {
+    position: absolute;
+    bottom: 0px;
+    height: auto;
+    display: flex;
+    list-style: none;
+    gap: 20px;
+    order: 2;
+}
+
+.nav-link a {
+    text-decoration: none;
+    color: white;
+    font-size: 1.1rem;
+    transition: color 0.3s;
+}
+
+.nav-link a:hover {
+    color: #ff9800;
+}
+
+.hamburger {
+    display: none;
+    flex-direction: column;
+    justify-content: space-between;
+    width: 30px;
+    height: 21px;
+    cursor: pointer;
+    z-index: 1000;
+    order: 1;
+}
+
+.bar {
+    width: 100%;
+    height: 3px;
+    background-color: white;
+    border-radius: 3px;
+    transition: all 0.3s ease-in-out;
+}
+
+.hamburger.active .bar:nth-child(1) {
+    transform: translateY(9px) rotate(45deg);
+}
+
+.hamburger.active .bar:nth-child(2) {
+    opacity: 0;
+    transform: translateX(+20px);
+}
+
+.hamburger.active .bar:nth-child(3) {
+    transform: translateY(-9px) rotate(-45deg);
+}
+
+@media (max-width: 480px) {
+    
+    .top-bar-content{
+        display: none;
+    }
+
+    .navbar{
+        display: block;
+        display: flex;
+        justify-content: space-between;
+    }
+
+    .logo-m {
+        margin-left: -16px;
+        order: 1;
+    }
+
+    .hamburger {
+        margin-right: -16px;
+        display: flex;
+        order: 3;
+    }
+
+    .search-bar{
+        position: relative;
+        top: 0px;
+        max-height: 60px;
+    }
+
+    .theme-btn{
+        order: 3;
+        margin-right: -30px;
+        margin-left: 60px;
+    }
+
+    .nav-link {
+        position: fixed;
+        right: -100%;
+        top: 70px;
+        gap: 0;
+        flex-direction: column;
+        background-color: #333;
+        width: 80%;
+        text-align: center;
+        transition: 0.3s;
+        box-shadow: 0px 10px 10px rgba(0, 0, 0, 0.1);
+        padding: 20px 0;
+        order: 2;
+    }
+
+    .nav-link li {
+        margin: 8px 0;
+    }
+
+    .nav-link.active {
+        right: 0;
+    }
+
+    .weather-card{
+        margin-top: 90px;
+    }
+
+    .aqi-panel{
+        width: 90%;
+    }
+
+    .sound-btn{
+        display: block;
+        width: 30px;
+        height: 30px;
+        position: fixed;
+        bottom: 30px;
+        left: 30px;
+        background: #3b82f6;
+        z-index: 1002;
     }
 }
