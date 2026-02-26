@@ -140,35 +140,32 @@ function updateWeatherCard(data) {
 
     const current = data.current;
 
-    // نام شهر
     const cityElement = document.getElementById('current-city');
     if (cityElement && data.location) {
         cityElement.textContent = `${data.location.name}, ${data.location.country}`;
     }
 
-    // دما
     const tempElement = document.getElementById('current-temp');
     if (tempElement) {
         tempElement.textContent = `${Math.round(current.temp)}°C`;
     }
 
-    // وضعیت جوی
     const conditionElement = document.getElementById('current-condition');
     if (conditionElement) {
         const info = getWeatherInfo(current.weather_code, getCurrentLang());
         conditionElement.textContent = info.text;
     }
 
-    // آیکون
     const iconElement = document.getElementById('current-icon');
     if (iconElement) {
         const info = getWeatherInfo(current.weather_code, getCurrentLang());
         iconElement.innerHTML = `<div style="font-size:4rem;">${info.icon}</div>`;
     }
 
-    // باد
     const windElement = document.querySelector('.wind');
     if (windElement) {
         windElement.textContent = `Wind: ${current.wind} km/h`;
     }
+
+     updateWeatherCode(current.weather_code);
 };

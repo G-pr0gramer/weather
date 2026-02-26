@@ -70,7 +70,7 @@ document.querySelectorAll(".lang-btn").forEach((btn) => {
     changeLanguage(lang);
   });
 });
-function displayWeatherData(data) {
+async function displayWeatherData(data) {
   if (!data || !data.current) return;
 
   const current = data.current;
@@ -100,7 +100,7 @@ function displayWeatherData(data) {
   if (humidityElement)
     humidityElement.textContent = `Humidity: ${current.humidity}%`;
 
-  updateWeatherCode(current.weather_code);
+  await updateWeatherCode(current.weather_code);
 }
 function renderaqi(aqi) {
   const container = document.getElementById("aqi");
@@ -338,6 +338,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
       debounceTimer = setTimeout(() => {
         if (query.length >= 2) {
+          console.log("🔍 جستجو برای:", query);
           searchCities(query, input);
         } else {
           clearAutocomplete();
@@ -346,11 +347,13 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     input.addEventListener("keypress", function (e) {
+      console.log("⌨️ کلید فشرده شد:", e.key);
       if (e.key === "Enter") {
         const city = input.value.trim();
         if (city) {
+          console.log("🎯 انتخاب شهر با Enter:", city);
           clearAutocomplete();
-          searchCities(city, input);
+          loadWeather(city); // ✅ اینجا باید loadWeather باشه!
         }
       }
     });
@@ -369,6 +372,7 @@ document.addEventListener("DOMContentLoaded", function () {
 let isSoundEnabled = true;
 let currentWeatherSound = null;
 let currentWeatherCode = 800;
+let audioInitialized = false;
 
 const weatherSounds = {
   rain: "sounds/rain.mp3",
@@ -378,7 +382,7 @@ const weatherSounds = {
   clear: "sounds/ambience.mp3",
 };
 
-function toggleSound() {
+async function toggleSound() {
   isSoundEnabled = !isSoundEnabled;
 
   const soundBtns = document.querySelectorAll(".sound-toggle");
@@ -394,65 +398,151 @@ function toggleSound() {
   });
 
   if (isSoundEnabled) {
-    playWeatherSound(currentWeatherCode);
+    await playWeatherSound(currentWeatherCode);
   } else {
-    stopWeatherSound();
+    await stopWeatherSound();
   }
 }
 
-function playWeatherSound(weatherCode) {
-  if (!isSoundEnabled) return;
+async function playWeatherSound(weatherCode) {
+  if (!isSoundEnabled) {
+    console.log("🔇 صدا غیرفعاله");
+    return;
+  }
 
-  stopWeatherSound();
+  // if (!audioInitialized) {
+  //   try {
+  //     const test = new Audio("sounds/ambience.mp3");
+  //     test.volume = 0.01;
+  //     await test.play();
+  //     test.pause();
+  //     audioInitialized = true;
+  //     console.log("✅ سیستم صدا فعال شد");
+  //   } catch (e) {
+  //     console.log("⚠️ هنوز اجازه پخش صدا داده نشده.");
+  //     return;
+  //   }
+  // }
+
+  console.log("⏸️ در حال توقف صدای قبلی...");
+  await stopWeatherSound();
+  console.log("⏹️ صدای قبلی متوقف شد");
 
   let soundType = "clear";
 
-  if (
-    [500, 501, 502, 503, 504, 511, 520, 521, 522, 531].includes(weatherCode)
-  ) {
+  if ([500, 501, 502, 503, 504, 511, 520, 521, 522, 531].includes(weatherCode) ||
+      [300, 301, 302, 310, 311, 312, 313, 314, 321].includes(weatherCode)) {
     soundType = "rain";
-  } else if (
-    [200, 201, 202, 210, 211, 212, 221, 230, 231, 232].includes(weatherCode)
-  ) {
+  }
+  else if ([200, 201, 202, 210, 211, 212, 221, 230, 231, 232].includes(weatherCode) ||
+           [95, 96, 99].includes(weatherCode)) {
     soundType = "thunderstorm";
-  } else if (
-    [701, 711, 721, 731, 741, 751, 761, 762, 771, 781].includes(weatherCode)
-  ) {
+  }
+  else if ([701, 711, 721, 731, 741, 751, 761, 762, 771, 781].includes(weatherCode) ||
+           [90, 91, 92, 93, 94, 98].includes(weatherCode)) {
     soundType = "wind";
-  } else if (
-    [600, 601, 602, 611, 612, 613, 615, 616, 620, 621, 622].includes(
-      weatherCode,
-    )
-  ) {
+  }
+  else if ([600, 601, 602, 611, 612, 613, 615, 616, 620, 621, 622].includes(weatherCode) ||
+           [771, 773].includes(weatherCode)) {
     soundType = "snow";
   }
 
   const soundUrl = weatherSounds[soundType];
+  console.log("🎵 نوع صدا:", soundType);
+  console.log("📁 مسیر فایل:", soundUrl);
 
-  if (soundUrl) {
+  if (!soundUrl) {
+    console.error("❌ فایل صدا پیدا نشد:", soundType);
+    return;
+  }
+
+  try {
+    console.log(" در حال ایجاد Audio object...");
     currentWeatherSound = new Audio(soundUrl);
     currentWeatherSound.loop = true;
-    currentWeatherSound.volume = 0.3;
-    currentWeatherSound.play().catch((err) => {
-      console.log("Sound autoplay blocked:", err);
+    currentWeatherSound.volume = 0.6;
+    
+    console.log("▶️ در حال پخش...");
+    await currentWeatherSound.play();
+    console.log("✅ صدای جدید با موفقیت پخش شد:", soundType);
+
+    currentWeatherSound.addEventListener('error', (e) => {
+      console.error("❌ خطا در پخش صدا:", e);
     });
+    
+  } catch (err) {
+    console.error("❌ خطا در پخش صدا:", err.name, err.message);
+    if (err.name === 'NotAllowedError') {
+      audioInitialized = false;
+      console.log("⚠️ نیاز به کلیک کاربر برای پخش صدا");
+    }
   }
 }
 
 function stopWeatherSound() {
-  if (currentWeatherSound) {
-    currentWeatherSound.pause();
-    currentWeatherSound.currentTime = 0;
-    currentWeatherSound = null;
+  return new Promise((resolve) => {
+    if (currentWeatherSound) {
+      console.log("⏸️ توقف صدای فعلی...");
+      
+      currentWeatherSound.pause();
+      currentWeatherSound.currentTime = 0;
+      
+      const oldSound = currentWeatherSound;
+      currentWeatherSound = null;
+      
+      setTimeout(() => {
+        console.log("⏹️ صدای قبلی کاملاً متوقف شد");
+        resolve();
+      }, 100);
+    } else {
+      console.log("ℹ️ صدایی در حال پخش نبود");
+      resolve();
+    }
+  });
+}
+
+async function updateWeatherCode(code) {
+  console.log("🔄 تغییر کد آب‌وهوا به:", code);
+  currentWeatherCode = code;
+
+  if (isSoundEnabled) {
+    console.log("🎵 تلاش برای پخش صدای جدید...");
+    await playWeatherSound(code);
+  } else {
+    console.log("🔇 صدا خاموش است، پخش انجام نشد");
   }
 }
 
-function updateWeatherCode(code) {
-  currentWeatherCode = code;
-  if (isSoundEnabled) {
-    playWeatherSound(code);
+async function initAudioOnFirstInteraction() {
+  if (audioInitialized) return;
+
+  console.log("🎵 تلاش برای فعال‌سازی صدا...");
+
+  try {
+    const testAudio = new Audio("sounds/ambience.mp3");
+    testAudio.volume = 0.01;
+
+    await testAudio.play();
+
+    audioInitialized = true;
+    testAudio.pause();
+    testAudio.currentTime = 0;
+
+    console.log("✅ سیستم صدا فعال شد!");
+
+    if (isSoundEnabled && currentWeatherCode) {
+      playWeatherSound(currentWeatherCode);
+    }
+
+  } catch (err) {
+    console.log("⚠️ پخش خودکار مسدود شد. خطا:", err.name);
   }
 }
+
+document.addEventListener('click', initAudioOnFirstInteraction, { once: true });
+document.addEventListener('touchstart', initAudioOnFirstInteraction, { once: true });
+
+console.log("🎧 سیستم صدا آماده است - با اولین کلیک فعال می‌شه");
 
 let isDarkMode = true;
 
@@ -839,7 +929,7 @@ document.querySelectorAll('.lang-btn').forEach(btn => {
 });
 
 document.addEventListener('DOMContentLoaded', () => {
-  const savedLang = localStorage.getItem('selectedLang') || 'fa';
+  const savedLang = localStorage.getItem('selectedLang') || 'en';
   const flagCode = flagMap[savedLang];
   const code = codeMap[savedLang];
 

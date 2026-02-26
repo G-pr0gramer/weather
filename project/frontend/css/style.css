@@ -10,7 +10,7 @@ body {
 }
 
 .main-header {
-     /* display: flex;
+    /* display: flex;
     justify-content: space-between;  */
     align-items: center;
     padding: 20px 25px;
@@ -956,7 +956,7 @@ body.menu-open {
 
     .language-selector {
         order: 2;
-        margin-left: 45px;
+        margin-left: 40px;
     } 
 
     .lang-dropdown-btn {
@@ -966,7 +966,7 @@ body.menu-open {
     }
 
     .hamburger {
-        margin-right: -6px;
+        margin-right: -8px;
         display: flex;
         order: 3;
     }
