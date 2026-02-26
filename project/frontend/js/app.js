@@ -1,5 +1,5 @@
 let currentCity = "istanbul";
-let currentLang = {}; // بعداً از فایل زبان پر می‌شه
+let currentLang = {};
 
 function loadWeather(city = "istanbul") {
   currentCity = city;
@@ -100,7 +100,6 @@ function displayWeatherData(data) {
   if (humidityElement)
     humidityElement.textContent = `Humidity: ${current.humidity}%`;
 
-  //  sync sound
   updateWeatherCode(current.weather_code);
 }
 function renderaqi(aqi) {
@@ -161,31 +160,31 @@ function renderDaily(days) {
 /////////////////////
 
 document.addEventListener("DOMContentLoaded", function () {
-  const searchInput = document.querySelector(".search-bar input");
+  const searchInputs = document.querySelectorAll(".search-input");
   let autocompleteContainer = null;
   let debounceTimer = null;
 
-  function createAutocompleteContainer() {
+  function createAutocompleteContainer(targetInput) {
     if (!autocompleteContainer) {
       autocompleteContainer = document.createElement("div");
       autocompleteContainer.className = "autocomplete-container";
       autocompleteContainer.style.cssText = `
-                position: absolute;
-                top: 100%;
-                left: 0;
-                right: 0;
-                background: rgba(26, 43, 60, 0.95);
-                border-radius: 15px;
-                margin-top: 10px;
-                max-height: 300px;
-                overflow-y: auto;
-                z-index: 1001;
-                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
-                backdrop-filter: blur(10px);
-                border: 1px solid rgba(255, 255, 255, 0.1);
-                padding: 5px 0;
-            `;
-      searchInput.parentElement.appendChild(autocompleteContainer);
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: rgba(26, 43, 60, 0.95);
+        border-radius: 15px;
+        margin-top: 10px;
+        max-height: 300px;
+        overflow-y: auto;
+        z-index: 1001;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        padding: 5px 0;
+      `;
+      targetInput.parentElement.appendChild(autocompleteContainer);
     }
     return autocompleteContainer;
   }
@@ -197,8 +196,8 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
 
-  function showSuggestions(cities) {
-    const container = createAutocompleteContainer();
+  function showSuggestions(cities, targetInput) {
+    const container = createAutocompleteContainer(targetInput);
     container.innerHTML = "";
 
     if (cities.length === 0) {
@@ -212,28 +211,28 @@ document.addEventListener("DOMContentLoaded", function () {
       const suggestion = document.createElement("div");
       suggestion.className = "autocomplete-item";
       suggestion.style.cssText = `
-                padding: 12px 15px;
-                cursor: pointer;
-                border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-                transition: all 0.2s ease;
-                color: #fff;
-                font-size: 1rem;
-                display: flex;
-                align-items: center;
-                gap: 10px;
-            `;
+        padding: 12px 15px;
+        cursor: pointer;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        transition: all 0.2s ease;
+        color: #fff;
+        font-size: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      `;
 
       const countryName = getCountryName(city.country);
 
       suggestion.innerHTML = `
-                <span style="font-size: 1.2rem;">📍</span>
-                <div style="flex: 1;">
-                    <div style="font-weight: 500; font-size: 1rem;">${city.name}</div>
-                    <div style="font-size: 0.85rem; opacity: 0.7; margin-top: 2px;">
-                        ${city.state ? city.state + " • " : ""}${countryName}
-                    </div>
-                </div>
-            `;
+        <span style="font-size: 1.2rem;">📍</span>
+        <div style="flex: 1;">
+          <div style="font-weight: 500; font-size: 1rem;">${city.name}</div>
+          <div style="font-size: 0.85rem; opacity: 0.7; margin-top: 2px;">
+            ${city.state ? city.state + " • " : ""}${countryName}
+          </div>
+        </div>
+      `;
 
       suggestion.onmouseover = () => {
         suggestion.style.background = "rgba(45, 68, 91, 0.8)";
@@ -244,12 +243,13 @@ document.addEventListener("DOMContentLoaded", function () {
       };
 
       suggestion.onclick = () => {
-        searchInput.value = city.name;
+        targetInput.value = city.name;
         clearAutocomplete();
         if (city.lat && city.lon) {
-          updateMapPosition(city.lat, city.lon, city.name);
+          if (typeof updateMapPosition === 'function') {
+            updateMapPosition(city.lat, city.lon, city.name);
+          }
         }
-
         loadWeather(city.name);
       };
 
@@ -277,7 +277,7 @@ document.addEventListener("DOMContentLoaded", function () {
     return countries[code] || code;
   }
 
-  async function searchCities(query) {
+  async function searchCities(query, targetInput) {
     if (query.length < 2) {
       clearAutocomplete();
       return;
@@ -314,52 +314,52 @@ document.addEventListener("DOMContentLoaded", function () {
         return aIndex - bIndex;
       });
 
-      showSuggestions(sortedCities);
+      showSuggestions(sortedCities, targetInput);
     } catch (error) {
       console.error("Error searching cities:", error);
 
-      const container = createAutocompleteContainer();
+      const container = createAutocompleteContainer(targetInput);
       container.innerHTML = `
-                <div style="padding: 15px; text-align: center; color: #ff6b6b; font-size: 0.9rem;">
-                    <div>⚠️ Unable to search cities</div>
-                    <div style="font-size: 0.8rem; margin-top: 5px; opacity: 0.8;">
-                        Please check your internet connection
-                    </div>
-                </div>
-            `;
+        <div style="padding: 15px; text-align: center; color: #ff6b6b; font-size: 0.9rem;">
+          <div>⚠️ Unable to search cities</div>
+          <div style="font-size: 0.8rem; margin-top: 5px; opacity: 0.8;">
+            Please check your internet connection
+          </div>
+        </div>
+      `;
       container.style.display = "block";
     }
   }
 
-  searchInput.addEventListener("input", function (e) {
-    const query = e.target.value.trim();
-    clearTimeout(debounceTimer);
+  searchInputs.forEach(input => {
+    input.addEventListener("input", function (e) {
+      const query = e.target.value.trim();
+      clearTimeout(debounceTimer);
 
-    debounceTimer = setTimeout(() => {
-      if (query.length >= 2) {
-        searchCities(query);
-      } else {
-        clearAutocomplete();
+      debounceTimer = setTimeout(() => {
+        if (query.length >= 2) {
+          searchCities(query, input);
+        } else {
+          clearAutocomplete();
+        }
+      }, 300);
+    });
+
+    input.addEventListener("keypress", function (e) {
+      if (e.key === "Enter") {
+        const city = input.value.trim();
+        if (city) {
+          clearAutocomplete();
+          searchCities(city, input);
+        }
       }
-    }, 300);
+    });
   });
 
   document.addEventListener("click", function (e) {
-    if (
-      !searchInput.contains(e.target) &&
-      !autocompleteContainer?.contains(e.target)
-    ) {
+    const isInput = e.target.closest(".search-input");
+    if (!isInput && !autocompleteContainer?.contains(e.target)) {
       clearAutocomplete();
-    }
-  });
-
-  searchInput.addEventListener("keypress", function (e) {
-    if (e.key === "Enter") {
-      const city = searchInput.value.trim();
-      if (city) {
-        clearAutocomplete();
-        searchCities(city);
-      }
     }
   });
 
@@ -382,7 +382,7 @@ function toggleSound() {
   isSoundEnabled = !isSoundEnabled;
 
   const soundBtns = document.querySelectorAll(".sound-toggle");
-  
+
   soundBtns.forEach(btn => {
     if (isSoundEnabled) {
       btn.classList.remove("muted");
@@ -459,10 +459,8 @@ let isDarkMode = true;
 function toggleTheme() {
   isDarkMode = !isDarkMode;
 
-  // ✅ انتخاب همه دکمه‌های تم با کلاس
   const themeBtns = document.querySelectorAll(".theme-toggle");
 
-  // ✅ حلقه برای آپدیت همه دکمه‌ها
   themeBtns.forEach(btn => {
     if (isDarkMode) {
       btn.innerHTML = '<span class="theme-icon">🌙</span>';
@@ -471,17 +469,14 @@ function toggleTheme() {
     }
   });
 
-  // تغییر استایل بادی
   document.body.style.backgroundColor = isDarkMode ? "rgb(29, 29, 71)" : "#f5f5f5";
   document.body.style.color = isDarkMode ? "#fff" : "#333";
 
-  // تغییر استایل کارت‌ها
   document.querySelectorAll(".weather-card, .day-card, .chart-container").forEach((card) => {
     card.style.background = isDarkMode ? "rgba(26, 43, 60, 0.7)" : "rgba(255, 255, 255, 0.9)";
     card.style.color = isDarkMode ? "#fff" : "#333";
   });
 
-  // تغییر استایل هدر
   const header = document.querySelector(".main-header");
   if (header) {
     header.style.background = isDarkMode ? "#1a2b3c" : "#fff";
@@ -753,3 +748,102 @@ var links = document.querySelectorAll('.nav-link a');
 for (var i = 0; i < links.length; i++) {
   links[i].onclick = closeMenu;
 }
+
+const langDropdowns = [
+  { btn: 'langDropdown', options: 'langOptions' },
+  { btn: 'langDropdownMobile', options: 'langOptionsMobile' }
+];
+
+const flagMap = { fa: 'ir', en: 'gb', tr: 'tr' };
+const codeMap = { fa: 'IR', en: 'EN', tr: 'TR' };
+
+function updateFlagDisplay(container, flagCode, langCode) {
+  const flagEl = container.querySelector('.fi');
+  const codeEl = container.querySelector('.lang-code');
+
+  if (flagEl && flagCode) {
+    flagEl.className = 'fi';
+    flagEl.classList.add(`fi-${flagCode}`);
+  }
+  if (codeEl && langCode) {
+    codeEl.textContent = langCode;
+  }
+}
+
+langDropdowns.forEach(({ btn, options }) => {
+  const dropdownBtn = document.getElementById(btn);
+  const optionsMenu = document.getElementById(options);
+
+  if (!dropdownBtn || !optionsMenu) return;
+
+  dropdownBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+
+    document.querySelectorAll('.lang-options').forEach(opt => {
+      if (opt !== optionsMenu) opt.classList.remove('show');
+    });
+    document.querySelectorAll('.lang-dropdown-btn').forEach(b => {
+      if (b !== dropdownBtn) b.classList.remove('active');
+    });
+
+    dropdownBtn.classList.toggle('active');
+    optionsMenu.classList.toggle('show');
+  });
+
+  optionsMenu.querySelectorAll('.lang-option').forEach(option => {
+    option.addEventListener('click', (e) => {
+      e.stopPropagation();
+
+      const lang = option.dataset.lang;
+      const flagCode = option.dataset.flag;
+      const code = option.dataset.code;
+
+      updateFlagDisplay(dropdownBtn, flagCode, code);
+
+      dropdownBtn.classList.remove('active');
+      optionsMenu.classList.remove('show');
+
+      if (typeof changeLanguage === 'function') {
+        changeLanguage(lang);
+      }
+
+      console.log(`✅ Language changed to: ${lang}`);
+    });
+  });
+});
+
+document.addEventListener('click', (e) => {
+  if (!e.target.closest('.language-selector')) {
+    document.querySelectorAll('.lang-options').forEach(opt => {
+      opt.classList.remove('show');
+    });
+    document.querySelectorAll('.lang-dropdown-btn').forEach(btn => {
+      btn.classList.remove('active');
+    });
+  }
+});
+
+document.querySelectorAll('.lang-btn').forEach(btn => {
+  btn.addEventListener('click', function () {
+    const lang = this.dataset.lang;
+    const flagCode = flagMap[lang];
+    const code = codeMap[lang];
+
+    langDropdowns.forEach(({ btn: btnId }) => {
+      const dropdownBtn = document.getElementById(btnId);
+      if (dropdownBtn) {
+        updateFlagDisplay(dropdownBtn, flagCode, code);
+      }
+    });
+  });
+});
+
+document.addEventListener('DOMContentLoaded', () => {
+  const savedLang = localStorage.getItem('selectedLang') || 'fa';
+  const flagCode = flagMap[savedLang];
+  const code = codeMap[savedLang];
+
+  document.querySelectorAll('.selected-lang').forEach(container => {
+    updateFlagDisplay(container, flagCode, code);
+  });
+});

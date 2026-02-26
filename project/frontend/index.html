@@ -3,16 +3,17 @@
 
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <script src="js/weather-map.js"></script>
 
   <title>weather</title>
 
-  <link rel="stylesheet" href="css/style.css" />
-  <link href="./src/output.css" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css">
+  <link href="./src/output.css" rel="stylesheet">
 
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/lipis/flag-icons@7.0.0/css/flag-icons.min.css">
 </head>
 
 <body>
@@ -21,7 +22,7 @@
       <div class="logo text-blue-700">AuraWeather</div>
 
       <div class="search-bar">
-        <input type="text" placeholder="Search City...🔍" class="search-input" />
+        <input type="text" placeholder="Search City...🔍" class="search-input">
       </div>
 
       <div class="header-icons">
@@ -44,18 +45,38 @@
     <nav class="navbar">
       <div class="logo-m">AuraWeather</div>
 
+      <div class="language-selector">
+        <button class="lang-dropdown-btn" id="langDropdown">
+          <span class="selected-lang">
+            <span class="fi fi-ir"></span>
+            <span class="lang-code">IR</span>
+          </span>
+          <span class="dropdown-icon">▼</span>
+        </button>
+
+        <div class="lang-options" id="langOptions">
+          <button class="lang-option" data-lang="fa" data-flag="ir" data-code="IR">
+            <span class="fi fi-ir"></span>
+            <span class="lang-name">فارسی (IR)</span>
+          </button>
+          <button class="lang-option" data-lang="en" data-flag="gb" data-code="EN">
+            <span class="fi fi-gb"></span>
+            <span class="lang-name">English (EN)</span>
+          </button>
+          <button class="lang-option" data-lang="tr" data-flag="tr" data-code="TR">
+            <span class="fi fi-tr"></span>
+            <span class="lang-name">Türkçe (TR)</span>
+          </button>
+        </div>
+      </div>
+
       <button class="theme-btn theme-toggle">
         <span class="theme-icon">🌙</span>
       </button>
 
       <ul class="nav-link">
         <div class="search-bar">
-          <input type="text" placeholder="Search City...🔍" class="search-input" />
-        </div>
-        <div class="lang-selector">
-          <button class="lang-btn active" data-lang="tr">Tr</button>
-          <button class="lang-btn" data-lang="fa">Ir</button>
-          <button class="lang-btn" data-lang="en">En</button>
+          <input type="text" placeholder="Search City...🔍" class="search-input">
         </div>
         <li><a href="#">خانه</a></li>
         <li><a href="#">محصولات</a></li>
@@ -99,8 +120,8 @@
     <div class="daily-forecast" id="daily"></div>
   </div>
 
-  <div class="aqi-panel" >
-    <div class="aqi-panel-header" onclick="toggleAQIPanel()" >
+  <div class="aqi-panel">
+    <div class="aqi-panel-header" onclick="toggleAQIPanel()">
       <div class="header-content">
         <span class="icon">🌬️</span>
         <span class="title">Air quality and consumption index</span>
