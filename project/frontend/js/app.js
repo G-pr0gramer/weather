@@ -1,5 +1,5 @@
 let currentCity = "istanbul";
-let currentLang = {}; // بعداً از فایل زبان پر می‌شه
+let currentLang = {};
 
 function loadWeather(city = "istanbul") {
   currentCity = city;
@@ -84,7 +84,7 @@ function displayWeatherData(data) {
 
   const info = getWeatherInfo(current.weather_code, currentLang);
 
-if (cityElement && data.location) {
+  if (cityElement && data.location) {
     cityElement.textContent = `${data.location.name}, ${data.location.country}`;
   }
 
@@ -100,7 +100,6 @@ if (cityElement && data.location) {
   if (humidityElement)
     humidityElement.textContent = `Humidity: ${current.humidity}%`;
 
-  //  sync sound
   updateWeatherCode(current.weather_code);
 }
 function renderaqi(aqi) {
@@ -161,31 +160,31 @@ function renderDaily(days) {
 /////////////////////
 
 document.addEventListener("DOMContentLoaded", function () {
-  const searchInput = document.querySelector(".search-bar input");
+  const searchInputs = document.querySelectorAll(".search-input");
   let autocompleteContainer = null;
   let debounceTimer = null;
 
-  function createAutocompleteContainer() {
+  function createAutocompleteContainer(targetInput) {
     if (!autocompleteContainer) {
       autocompleteContainer = document.createElement("div");
       autocompleteContainer.className = "autocomplete-container";
       autocompleteContainer.style.cssText = `
-                position: absolute;
-                top: 100%;
-                left: 0;
-                right: 0;
-                background: rgba(26, 43, 60, 0.95);
-                border-radius: 15px;
-                margin-top: 10px;
-                max-height: 300px;
-                overflow-y: auto;
-                z-index: 1001;
-                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
-                backdrop-filter: blur(10px);
-                border: 1px solid rgba(255, 255, 255, 0.1);
-                padding: 5px 0;
-            `;
-      searchInput.parentElement.appendChild(autocompleteContainer);
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: rgba(26, 43, 60, 0.95);
+        border-radius: 15px;
+        margin-top: 10px;
+        max-height: 300px;
+        overflow-y: auto;
+        z-index: 1001;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        padding: 5px 0;
+      `;
+      targetInput.parentElement.appendChild(autocompleteContainer);
     }
     return autocompleteContainer;
   }
@@ -197,8 +196,8 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
 
-  function showSuggestions(cities) {
-    const container = createAutocompleteContainer();
+  function showSuggestions(cities, targetInput) {
+    const container = createAutocompleteContainer(targetInput);
     container.innerHTML = "";
 
     if (cities.length === 0) {
@@ -212,28 +211,28 @@ document.addEventListener("DOMContentLoaded", function () {
       const suggestion = document.createElement("div");
       suggestion.className = "autocomplete-item";
       suggestion.style.cssText = `
-                padding: 12px 15px;
-                cursor: pointer;
-                border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-                transition: all 0.2s ease;
-                color: #fff;
-                font-size: 1rem;
-                display: flex;
-                align-items: center;
-                gap: 10px;
-            `;
+        padding: 12px 15px;
+        cursor: pointer;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        transition: all 0.2s ease;
+        color: #fff;
+        font-size: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      `;
 
       const countryName = getCountryName(city.country);
 
       suggestion.innerHTML = `
-                <span style="font-size: 1.2rem;">📍</span>
-                <div style="flex: 1;">
-                    <div style="font-weight: 500; font-size: 1rem;">${city.name}</div>
-                    <div style="font-size: 0.85rem; opacity: 0.7; margin-top: 2px;">
-                        ${city.state ? city.state + " • " : ""}${countryName}
-                    </div>
-                </div>
-            `;
+        <span style="font-size: 1.2rem;">📍</span>
+        <div style="flex: 1;">
+          <div style="font-weight: 500; font-size: 1rem;">${city.name}</div>
+          <div style="font-size: 0.85rem; opacity: 0.7; margin-top: 2px;">
+            ${city.state ? city.state + " • " : ""}${countryName}
+          </div>
+        </div>
+      `;
 
       suggestion.onmouseover = () => {
         suggestion.style.background = "rgba(45, 68, 91, 0.8)";
@@ -244,12 +243,13 @@ document.addEventListener("DOMContentLoaded", function () {
       };
 
       suggestion.onclick = () => {
-        searchInput.value = city.name;
+        targetInput.value = city.name;
         clearAutocomplete();
-          if (city.lat && city.lon) {
-                    updateMapPosition(city.lat, city.lon, city.name);
-                }
-
+        if (city.lat && city.lon) {
+          if (typeof updateMapPosition === 'function') {
+            updateMapPosition(city.lat, city.lon, city.name);
+          }
+        }
         loadWeather(city.name);
       };
 
@@ -277,7 +277,7 @@ document.addEventListener("DOMContentLoaded", function () {
     return countries[code] || code;
   }
 
-  async function searchCities(query) {
+  async function searchCities(query, targetInput) {
     if (query.length < 2) {
       clearAutocomplete();
       return;
@@ -314,52 +314,52 @@ document.addEventListener("DOMContentLoaded", function () {
         return aIndex - bIndex;
       });
 
-      showSuggestions(sortedCities);
+      showSuggestions(sortedCities, targetInput);
     } catch (error) {
       console.error("Error searching cities:", error);
 
-      const container = createAutocompleteContainer();
+      const container = createAutocompleteContainer(targetInput);
       container.innerHTML = `
-                <div style="padding: 15px; text-align: center; color: #ff6b6b; font-size: 0.9rem;">
-                    <div>⚠️ Unable to search cities</div>
-                    <div style="font-size: 0.8rem; margin-top: 5px; opacity: 0.8;">
-                        Please check your internet connection
-                    </div>
-                </div>
-            `;
+        <div style="padding: 15px; text-align: center; color: #ff6b6b; font-size: 0.9rem;">
+          <div>⚠️ Unable to search cities</div>
+          <div style="font-size: 0.8rem; margin-top: 5px; opacity: 0.8;">
+            Please check your internet connection
+          </div>
+        </div>
+      `;
       container.style.display = "block";
     }
   }
 
-  searchInput.addEventListener("input", function (e) {
-    const query = e.target.value.trim();
-    clearTimeout(debounceTimer);
+  searchInputs.forEach(input => {
+    input.addEventListener("input", function (e) {
+      const query = e.target.value.trim();
+      clearTimeout(debounceTimer);
 
-    debounceTimer = setTimeout(() => {
-      if (query.length >= 2) {
-        searchCities(query);
-      } else {
-        clearAutocomplete();
+      debounceTimer = setTimeout(() => {
+        if (query.length >= 2) {
+          searchCities(query, input);
+        } else {
+          clearAutocomplete();
+        }
+      }, 300);
+    });
+
+    input.addEventListener("keypress", function (e) {
+      if (e.key === "Enter") {
+        const city = input.value.trim();
+        if (city) {
+          clearAutocomplete();
+          searchCities(city, input);
+        }
       }
-    }, 300);
+    });
   });
 
   document.addEventListener("click", function (e) {
-    if (
-      !searchInput.contains(e.target) &&
-      !autocompleteContainer?.contains(e.target)
-    ) {
+    const isInput = e.target.closest(".search-input");
+    if (!isInput && !autocompleteContainer?.contains(e.target)) {
       clearAutocomplete();
-    }
-  });
-
-  searchInput.addEventListener("keypress", function (e) {
-    if (e.key === "Enter") {
-      const city = searchInput.value.trim();
-      if (city) {
-        clearAutocomplete();
-        searchCities(city);
-      }
     }
   });
 
@@ -381,15 +381,21 @@ const weatherSounds = {
 function toggleSound() {
   isSoundEnabled = !isSoundEnabled;
 
-  const soundBtn = document.getElementById("sound-toggle");
+  const soundBtns = document.querySelectorAll(".sound-toggle");
+
+  soundBtns.forEach(btn => {
+    if (isSoundEnabled) {
+      btn.classList.remove("muted");
+      btn.innerHTML = '<span class="sound-icon">🔊</span>';
+    } else {
+      btn.classList.add("muted");
+      btn.innerHTML = '<span class="sound-icon">🔇</span>';
+    }
+  });
 
   if (isSoundEnabled) {
-    soundBtn.classList.remove("muted");
-    soundBtn.innerHTML = '<span class="sound-icon">🔊</span>';
     playWeatherSound(currentWeatherCode);
   } else {
-    soundBtn.classList.add("muted");
-    soundBtn.innerHTML = '<span class="sound-icon">🔇</span>';
     stopWeatherSound();
   }
 }
@@ -453,53 +459,44 @@ let isDarkMode = true;
 function toggleTheme() {
   isDarkMode = !isDarkMode;
 
-  const themeBtn = document.getElementById("theme-toggle");
+  const themeBtns = document.querySelectorAll(".theme-toggle");
 
-  if (isDarkMode) {
-    document.body.style.backgroundColor = "rgb(29, 29, 71)";
-    document.body.style.color = "#fff";
-    themeBtn.innerHTML = '<span class="theme-icon">🌙</span>';
-  } else {
-    document.body.style.backgroundColor = "#f5f5f5";
-    document.body.style.color = "#333";
-    themeBtn.innerHTML = '<span class="theme-icon">☀️</span>';
-  }
+  themeBtns.forEach(btn => {
+    if (isDarkMode) {
+      btn.innerHTML = '<span class="theme-icon">🌙</span>';
+    } else {
+      btn.innerHTML = '<span class="theme-icon">☀️</span>';
+    }
+  });
 
-  document
-    .querySelectorAll(".weather-card, .day-card, .chart-container")
-    .forEach((card) => {
-      if (isDarkMode) {
-        card.style.background = "rgba(26, 43, 60, 0.7)";
-        card.style.color = "#fff";
-      } else {
-        card.style.background = "rgba(255, 255, 255, 0.9)";
-        card.style.color = "#333";
-      }
-    });
+  document.body.style.backgroundColor = isDarkMode ? "rgb(29, 29, 71)" : "#f5f5f5";
+  document.body.style.color = isDarkMode ? "#fff" : "#333";
+
+  document.querySelectorAll(".weather-card, .day-card, .chart-container").forEach((card) => {
+    card.style.background = isDarkMode ? "rgba(26, 43, 60, 0.7)" : "rgba(255, 255, 255, 0.9)";
+    card.style.color = isDarkMode ? "#fff" : "#333";
+  });
 
   const header = document.querySelector(".main-header");
   if (header) {
-    if (isDarkMode) {
-      header.style.background = "#1a2b3c";
-      header.style.color = "#fff";
-    } else {
-      header.style.background = "#fff";
-      header.style.color = "#333";
-      header.style.boxShadow = "0 2px 10px rgba(0, 0, 0, 0.1)";
-    }
+    header.style.background = isDarkMode ? "#1a2b3c" : "#fff";
+    header.style.color = isDarkMode ? "#fff" : "#333";
+    header.style.boxShadow = isDarkMode ? "none" : "0 2px 10px rgba(0, 0, 0, 0.1)";
   }
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-  const soundBtn = document.getElementById("sound-toggle");
-  if (soundBtn) {
-    soundBtn.addEventListener("click", toggleSound);
-  }
 
-  const themeBtn = document.getElementById("theme-toggle");
-  if (themeBtn) {
-    themeBtn.addEventListener("click", toggleTheme);
-  }
+  const themeBtns = document.querySelectorAll(".theme-toggle");
+  themeBtns.forEach(btn => {
+    btn.addEventListener("click", toggleTheme);
+  });
+
+  const soundBtns = document.querySelectorAll(".sound-toggle");
+  soundBtns.forEach(btn => {
+    btn.addEventListener("click", toggleSound);
+  });
+
 });
 console.log("Header features initialized");
 // بار اول
@@ -509,3 +506,344 @@ loadWeather();
 setInterval(() => {
   loadWeather();
 }, 600000);
+
+let aqiChartInstance = null;
+let aqiPanelOpen = false;
+
+function toggleAQIPanel() {
+  const panel = document.querySelector('.aqi-panel');
+  aqiPanelOpen = !aqiPanelOpen;
+
+  if (aqiPanelOpen) {
+    panel.classList.add('open');
+  } else {
+    panel.classList.remove('open');
+  }
+}
+
+async function loadAQIChart() {
+  const input = document.getElementById('aqiCityInput').value;
+  const loading = document.getElementById('aqiLoading');
+  const summaryCards = document.getElementById('aqiSummaryCards');
+  const chartContainer = document.getElementById('aqiChartContainer');
+  const detailsTable = document.getElementById('aqiDetailsTable');
+
+  if (!input.trim()) {
+    alert('Please enter the name of at least one city');
+    return;
+  }
+
+  const cities = input.split(/[,،و]+/).map(c => c.trim()).filter(c => c);
+  console.log('شهرهای وارد شده:', cities);
+
+  if (cities.length === 0) {
+    alert('Please enter at least one city');
+    return;
+  }
+
+  // نمایش لودینگ
+  loading.style.display = 'flex';
+  summaryCards.style.display = 'none';
+  chartContainer.style.display = 'none';
+  detailsTable.style.display = 'none';
+
+  const allData = [];
+  const errors = [];
+
+  try {
+    for (const city of cities) {
+      try {
+        console.log(`در حال دریافت اطلاعات برای: ${city}`);
+        const data = await fetchFromBackend(city);
+
+        if (data && data.current && data.current.aqi) {
+          allData.push(data);
+          console.log(`✅ داده‌های ${city} دریافت شد:`, data.current.aqi);
+        } else {
+          errors.push(`${city}: داده‌های AQI موجود نیست`);
+          console.warn(`⚠️ داده‌های ناقص برای ${city}:`, data);
+        }
+      } catch (cityError) {
+        console.error(`❌ خطا در دریافت ${city}:`, cityError);
+        errors.push(`${city}: ${cityError.message}`);
+      }
+    }
+
+    if (allData.length === 0) {
+      throw new Error('هیچ داده‌ای دریافت نشد.\nخطاها: ' + errors.join(', '));
+    }
+
+    console.log('✅ همه داده‌ها:', allData);
+
+    loading.style.display = 'none';
+
+    renderAQISummaryCards(allData);
+    summaryCards.style.display = 'grid';
+
+    renderAQIChart(allData);
+    chartContainer.style.display = 'block';
+
+    renderAQITable(allData);
+    detailsTable.style.display = 'block';
+
+    if (errors.length > 0) {
+      console.warn('⚠️ برخی شهرها خطا دادن:', errors);
+    }
+
+  } catch (error) {
+    loading.style.display = 'none';
+    console.error('خطای کلی:', error);
+    alert('خطا در دریافت اطلاعات:\n' + error.message);
+  }
+}
+
+function renderAQISummaryCards(citiesData) {
+  const container = document.getElementById('aqiSummaryCards');
+  container.innerHTML = '';
+
+  citiesData.forEach(city => {
+    const aqiValue = city.current.aqi.value;
+    const aqiLevel = city.current.aqi.level;
+
+    let statusClass = aqiValue <= 50 ? 'good' :
+      aqiValue <= 100 ? 'moderate' : 'unhealthy';
+
+    const card = `
+            <div class="summary-card ${statusClass}">
+                <div class="summary-city">${city.city}</div>
+                <div class="summary-value">${aqiValue}</div>
+                <div class="summary-level">${aqiLevel}</div>
+            </div>
+        `;
+    container.innerHTML += card;
+  });
+}
+
+function renderAQIChart(citiesData) {
+  const ctx = document.getElementById('aqiChart').getContext('2d');
+
+  if (aqiChartInstance) {
+    aqiChartInstance.destroy();
+  }
+
+  const labels = citiesData.map(d => d.city);
+  const values = citiesData.map(d => d.current.aqi.value);
+
+  const bgColors = values.map(val => {
+    if (val <= 50) return 'rgba(76, 175, 80, 0.8)';
+    if (val <= 100) return 'rgba(255, 152, 0, 0.8)';
+    return 'rgba(244, 67, 54, 0.8)';
+  });
+
+  aqiChartInstance = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: labels,
+      datasets: [{
+        label: 'Air pollution index: (AQI)',
+        data: values,
+        backgroundColor: bgColors,
+        borderColor: bgColors.map(c => c.replace('0.8', '1')),
+        borderWidth: 2,
+        borderRadius: 8,
+        barThickness: 60,
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        title: {
+          display: true,
+          text: 'Air Quality Index Comparison',
+          color: 'rgba(255, 255, 255, 0.9)',
+          font: { size: 16, weight: 'bold' }
+        },
+        tooltip: {
+          backgroundColor: 'rgba(0, 0, 0, 0.8)',
+          titleColor: '#fff',
+          bodyColor: '#fff',
+          borderColor: 'rgba(255, 255, 255, 0.1)',
+          borderWidth: 1,
+          padding: 12,
+          displayColors: true,
+        }
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          max: 200,
+          grid: { color: 'rgba(255, 255, 255, 0.05)' },
+          ticks: { color: 'rgba(255, 255, 255, 0.6)' },
+          title: {
+            display: true,
+            text: 'AQI',
+            color: 'rgba(255, 255, 255, 0.7)'
+          }
+        },
+        x: {
+          grid: { display: false },
+          ticks: { color: 'rgba(255, 255, 255, 0.6)' }
+        }
+      },
+      animation: {
+        duration: 1000,
+        easing: 'easeOutQuart'
+      }
+    }
+  });
+}
+
+function renderAQITable(citiesData) {
+  const tbody = document.getElementById('aqiTableBody');
+  tbody.innerHTML = '';
+
+  const recommendations = {
+    good: 'Outdoor activities are free',
+    moderate: 'The sensitive should be careful',
+    unhealthy: 'Reduction in outdoor activity'
+  };
+
+  citiesData.forEach(city => {
+    const aqiValue = city.current.aqi.value;
+    const aqiLevel = city.current.aqi.level.toLowerCase();
+
+    let statusClass = aqiValue <= 50 ? 'good' :
+      aqiValue <= 100 ? 'moderate' : 'unhealthy';
+
+    const row = `
+            <tr>
+                <td><strong>${city.city}</strong></td>
+                <td>${aqiValue}</td>
+                <td><span class="aqi-badge ${statusClass}">${aqiLevel}</span></td>
+                <td>${recommendations[statusClass]}</td>
+            </tr>
+        `;
+    tbody.innerHTML += row;
+  });
+}
+
+async function fetchFromBackend(cityName) {
+  const response = await fetch(`../backend/api/weather.php?city=${cityName}`);
+  if (!response.ok) throw new Error(`شهر ${cityName} پیدا نشد`);
+  return await response.json();
+}
+
+const hamburger = document.getElementById('hamburger');
+const navLink = document.querySelector('.nav-link');
+
+function openMenu() {
+  hamburger.classList.toggle("active");
+  navLink.classList.toggle("active");
+  document.body.classList.toggle("menu-open");
+}
+
+function closeMenu() {
+  hamburger.classList.remove("active");
+  navLink.classList.remove("active");
+}
+
+var links = document.querySelectorAll('.nav-link a');
+for (var i = 0; i < links.length; i++) {
+  links[i].onclick = closeMenu;
+}
+
+const langDropdowns = [
+  { btn: 'langDropdown', options: 'langOptions' },
+  { btn: 'langDropdownMobile', options: 'langOptionsMobile' }
+];
+
+const flagMap = { fa: 'ir', en: 'gb', tr: 'tr' };
+const codeMap = { fa: 'IR', en: 'EN', tr: 'TR' };
+
+function updateFlagDisplay(container, flagCode, langCode) {
+  const flagEl = container.querySelector('.fi');
+  const codeEl = container.querySelector('.lang-code');
+
+  if (flagEl && flagCode) {
+    flagEl.className = 'fi';
+    flagEl.classList.add(`fi-${flagCode}`);
+  }
+  if (codeEl && langCode) {
+    codeEl.textContent = langCode;
+  }
+}
+
+langDropdowns.forEach(({ btn, options }) => {
+  const dropdownBtn = document.getElementById(btn);
+  const optionsMenu = document.getElementById(options);
+
+  if (!dropdownBtn || !optionsMenu) return;
+
+  dropdownBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+
+    document.querySelectorAll('.lang-options').forEach(opt => {
+      if (opt !== optionsMenu) opt.classList.remove('show');
+    });
+    document.querySelectorAll('.lang-dropdown-btn').forEach(b => {
+      if (b !== dropdownBtn) b.classList.remove('active');
+    });
+
+    dropdownBtn.classList.toggle('active');
+    optionsMenu.classList.toggle('show');
+  });
+
+  optionsMenu.querySelectorAll('.lang-option').forEach(option => {
+    option.addEventListener('click', (e) => {
+      e.stopPropagation();
+
+      const lang = option.dataset.lang;
+      const flagCode = option.dataset.flag;
+      const code = option.dataset.code;
+
+      updateFlagDisplay(dropdownBtn, flagCode, code);
+
+      dropdownBtn.classList.remove('active');
+      optionsMenu.classList.remove('show');
+
+      if (typeof changeLanguage === 'function') {
+        changeLanguage(lang);
+      }
+
+      console.log(`✅ Language changed to: ${lang}`);
+    });
+  });
+});
+
+document.addEventListener('click', (e) => {
+  if (!e.target.closest('.language-selector')) {
+    document.querySelectorAll('.lang-options').forEach(opt => {
+      opt.classList.remove('show');
+    });
+    document.querySelectorAll('.lang-dropdown-btn').forEach(btn => {
+      btn.classList.remove('active');
+    });
+  }
+});
+
+document.querySelectorAll('.lang-btn').forEach(btn => {
+  btn.addEventListener('click', function () {
+    const lang = this.dataset.lang;
+    const flagCode = flagMap[lang];
+    const code = codeMap[lang];
+
+    langDropdowns.forEach(({ btn: btnId }) => {
+      const dropdownBtn = document.getElementById(btnId);
+      if (dropdownBtn) {
+        updateFlagDisplay(dropdownBtn, flagCode, code);
+      }
+    });
+  });
+});
+
+document.addEventListener('DOMContentLoaded', () => {
+  const savedLang = localStorage.getItem('selectedLang') || 'fa';
+  const flagCode = flagMap[savedLang];
+  const code = codeMap[savedLang];
+
+  document.querySelectorAll('.selected-lang').forEach(container => {
+    updateFlagDisplay(container, flagCode, code);
+  });
+});
