@@ -430,11 +430,11 @@ async function playWeatherSound(weatherCode) {
 
   let soundType = "clear";
 
-  if ([500, 501, 502, 503, 504, 511, 520, 521, 522, 531].includes(weatherCode) ||
+  if ([500, 501, 502, 503, 504, 511, 520, 521, 522, 531, 61, 63, 65, 80, 81, 82].includes(weatherCode) ||
       [300, 301, 302, 310, 311, 312, 313, 314, 321].includes(weatherCode)) {
     soundType = "rain";
   }
-  else if ([200, 201, 202, 210, 211, 212, 221, 230, 231, 232].includes(weatherCode) ||
+  else if ([200, 201, 202, 210, 211, 212, 221, 230, 231, 232,].includes(weatherCode) ||
            [95, 96, 99].includes(weatherCode)) {
     soundType = "thunderstorm";
   }
